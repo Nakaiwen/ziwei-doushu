@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小六太乙 · 紫微斗數盤</title>
+<style>
+:root{
+  --bg:#fbf8f1; --bg-card:#fffdf8; --text:#2a2522; --strong:#1a1411;
+  --rule:#d9cdb4; --accent:#b8a98d; --muted:#9c8f7d; --gold:#a8894e;
+  --wood:#6b8e5a; --fire:#c2683f; --earth:#b5944a; --metal:#8a8f96; --water:#4a6d8c;
+  --major:#7a3b2e;     /* 主星 */
+  --aux:#4a6d8c;       /* 輔星 */
+  --sha:#9c8f7d;       /* 煞星 */
+  --misc:#8a8f96;      /* 雜曜 */
+  --hua-lu:#6b8e5a; --hua-quan:#c2683f; --hua-ke:#4a6d8c; --hua-ji:#7a3b2e;
+  --ming:#fbe6cf; --shen:#e9f0e2; --sanfang:#f8edc2;
+  --font-serif:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif;
+  --font-sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--font-sans);
+  line-height:1.6;padding:20px 14px 80px;max-width:1080px;margin:0 auto;
+  background-image:radial-gradient(circle at 20% 8%,rgba(184,169,141,0.05),transparent 42%);
+}
+h1{font-family:var(--font-serif);font-size:1.7rem;font-weight:600;text-align:center;
+  letter-spacing:0.2em;color:var(--strong);margin-bottom:2px;}
+.subtitle{text-align:center;color:var(--muted);font-size:0.8rem;letter-spacing:0.15em;margin-bottom:18px;}
+.subtitle::after{content:"";display:block;width:48px;height:1px;background:var(--accent);margin:12px auto 0;}
+
+/* 頂端盤別列 */
+.topbar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  background:var(--bg-card);border:1px solid var(--rule);border-radius:8px;padding:8px 14px;margin-bottom:14px;}
+.topbar .now{font-family:var(--font-serif);color:var(--strong);letter-spacing:0.06em;display:inline-flex;align-items:center;gap:5px;}
+.topbar .now input{font-family:var(--font-sans);font-size:0.85rem;padding:4px 6px;border:1px solid var(--rule);border-radius:6px;background:#fff;color:var(--text);}
+.topbar .now input:focus{outline:none;border-color:var(--gold);}
+.topbar .now b{color:var(--gold);font-weight:600;}
+.topbar .pan{color:var(--gold);font-weight:600;font-family:var(--font-serif);}
+.topbar .ctrl{display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;color:var(--muted);}
+.topbar .ctrl select,.topbar .ctrl input{font-family:var(--font-sans);font-size:0.82rem;padding:5px 7px;
+  border:1px solid var(--rule);border-radius:6px;background:#fff;color:var(--text);}
+.topbar .ctrl select:focus,.topbar .ctrl input:focus{outline:none;border-color:var(--gold);}
+.muted-inline{color:var(--gold);font-size:0.78rem;}
+.topbar .vr{width:1px;align-self:stretch;background:var(--rule);margin:0 2px;}
+
+/* 輸入卡 */
+.input-card{background:var(--bg-card);border:1px solid var(--rule);border-radius:10px;
+  padding:16px 18px;box-shadow:0 2px 12px rgba(42,37,34,0.04);margin-bottom:18px;}
+.input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+.field{display:flex;flex-direction:column;gap:3px;}
+.field label{font-size:0.74rem;color:var(--muted);letter-spacing:0.05em;}
+.field input,.field select{font-family:var(--font-sans);font-size:0.92rem;padding:7px 9px;
+  border:1px solid var(--rule);border-radius:6px;background:#fff;color:var(--text);}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold);}
+.btn-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+button{font-family:var(--font-serif);font-size:0.9rem;letter-spacing:0.06em;padding:9px 20px;
+  border:none;border-radius:6px;cursor:pointer;transition:all .2s;}
+.btn-primary{background:var(--gold);color:#fff;}
+.btn-primary:hover{background:#94763f;}
+.btn-ghost{background:transparent;color:var(--gold);border:1px solid var(--gold);padding:7px 14px;font-size:0.82rem;}
+.btn-ghost:hover{background:rgba(168,137,78,0.08);}
+
+/* ===== 命盤 4×4 ===== */
+.board{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,minmax(146px,1fr));
+  gap:0;border:2px solid var(--accent);border-radius:8px;overflow:hidden;background:#fff;
+  box-shadow:0 4px 20px rgba(42,37,34,0.07);}
+.cell{border:1px solid var(--rule);position:relative;padding:5px 6px 20px;min-height:118px;
+  display:flex;flex-direction:column;font-size:0.72rem;background:var(--bg-card);}
+.cell.sanfang{background:var(--sanfang);}
+.cell.ming{background:var(--ming);}
+.cell.shen{box-shadow:inset 0 0 0 2px var(--wood);}
+/* 星曜：三列 — 主星 / 六吉六凶 / 雜曜 */
+.stars{display:flex;flex-direction:column;gap:3px;flex:1;}
+.star-row{display:flex;flex-wrap:wrap;gap:1px 9px;align-content:flex-start;}
+.star-row.majors{min-height:1.55em;}
+.star-row.lucky{min-height:1.25em;}
+.star{display:inline-flex;align-items:baseline;font-family:var(--font-serif);line-height:1.3;white-space:nowrap;}
+.star.major{color:var(--major);}
+.star.aux{color:var(--aux);}
+.star.sha{color:var(--sha);}
+.star.misc{color:var(--misc);}
+.star-row.majors .star{font-size:1.12rem;font-weight:600;}
+.star-row.lucky  .star{font-size:0.9rem;}
+.star-row.minor  .star{font-size:0.74rem;color:var(--misc);}
+.bri{font-size:0.62rem;color:var(--muted);margin-left:1px;font-weight:400;}
+.star-row.majors .bri{font-size:0.72rem;}
+/* 四化標籤：顏色=祿權科忌；填色樣式=生年(實心)/大限(實框)/小限(虛框) */
+.hua{font-size:0.74rem;font-weight:700;border-radius:4px;padding:0 4px;margin-left:3px;
+  line-height:1.3;align-self:center;display:inline-flex;align-items:center;}
+.hua .lyr{font-size:0.52rem;font-weight:700;margin-right:1px;opacity:0.92;}
+.hua.祿{--c:var(--hua-lu);}  .hua.權{--c:var(--hua-quan);}
+.hua.科{--c:var(--hua-ke);}  .hua.忌{--c:var(--hua-ji);}
+/* 各層皆白字+色底；以字首「限/小/流」區分層級（生年無字首） */
+.hua.sheng,.hua.da,.hua.xiao,.hua.liu{background:var(--c);color:#fff;box-shadow:0 1px 2px rgba(42,37,34,0.18);}
+.hua .lyr{color:#fff;}
+/* 宮位底列 */
+.cell .footer{position:absolute;left:6px;right:6px;bottom:3px;display:flex;justify-content:space-between;
+  align-items:flex-end;font-size:0.64rem;color:var(--muted);}
+.cell .pname{font-family:var(--font-serif);font-weight:600;color:var(--strong);font-size:0.8rem;letter-spacing:0.04em;}
+.cell .pname .tag{font-size:0.58rem;padding:0 3px;border-radius:3px;margin-left:2px;vertical-align:top;}
+.cell .pname .tag.ming{background:var(--gold);color:#fff;}
+.cell .pname .tag.shen{background:var(--wood);color:#fff;}
+.cell .pname .tag.daxian{background:var(--water);color:#fff;}
+.cell .pname .tag.xiaoxian{background:var(--fire);color:#fff;}
+/* 運限宮名角色標籤：大限綠 / 小限藍 */
+.proles{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;}
+.prole{font-family:var(--font-serif);font-size:0.66rem;font-weight:600;padding:0 3px;border-radius:3px;letter-spacing:0.02em;}
+.prole.da{color:#2f7d36;background:#e6f1e2;}
+.prole.xiao{color:#2f5fae;background:#e6edf8;}
+.prole.liu{color:#6f4a9e;background:#efe8f7;}
+.prole.yue{color:#9a6a1e;background:#f3ead6;}
+.prole.ri{color:#9a4a2e;background:#f3e2dc;}
+.prole.shi{color:#2f7d7d;background:#dcefef;}
+/* 流曜（第四列，紫色） */
+.star-row.flow .star,.star.flow{color:#7a4fae;font-size:0.72rem;}
+/* 運限輸入組 */
+#flWrap{gap:9px;}
+#flWrap>span{display:inline-flex;align-items:center;gap:4px;}
+#flWrap input{width:62px;}
+#flWrap select{padding:5px 4px;}
+.cell .gz{font-family:var(--font-serif);}
+.cell .dx{position:absolute;top:3px;right:6px;font-size:0.6rem;color:var(--accent);}
+
+/* 中宮 */
+.center{grid-area:2/2/4/4;background:linear-gradient(135deg,#fffdf8,#f7f1e4);
+  border:1px solid var(--rule);display:flex;flex-direction:column;padding:14px 16px;gap:4px;overflow-y:auto;}
+.center h3{font-family:var(--font-serif);font-size:1.05rem;color:var(--strong);letter-spacing:0.1em;
+  text-align:center;margin-bottom:4px;}
+.center .nm{font-size:1.25rem;}
+.center .row{display:flex;justify-content:space-between;font-size:0.74rem;gap:8px;border-bottom:1px dashed var(--rule);padding:2px 0;}
+.center .row span:first-child{color:var(--muted);}
+.center .row span:last-child{color:var(--strong);font-family:var(--font-serif);text-align:right;}
+.center .fnbtns{display:flex;gap:6px;justify-content:center;margin-top:auto;flex-wrap:wrap;padding-top:8px;}
+.center .fnbtns button{font-size:0.72rem;padding:5px 12px;background:transparent;color:var(--gold);border:1px solid var(--rule);}
+.center .fnbtns button:hover{background:rgba(168,137,78,0.08);}
+
+/* 註腳 / 法派 */
+.notes{margin-top:20px;background:var(--bg-card);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;font-size:0.78rem;color:var(--muted);}
+.notes h4{font-family:var(--font-serif);color:var(--strong);font-size:0.92rem;margin-bottom:6px;letter-spacing:0.06em;}
+.notes ul{list-style:none;}
+.notes li{padding:3px 0;border-bottom:1px dotted var(--rule);}
+.notes li:last-child{border:none;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:0.72rem;}
+.legend span{display:inline-flex;align-items:center;gap:4px;}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block;}
+.hidden{display:none;}
+/* 自製下拉：取代原生 <select>（Artifact 沙箱內原生下拉常無法開啟）。原 select 隱藏但保留供程式讀值 */
+.native-hidden{display:none!important;}
+.cs{position:relative;display:inline-block;vertical-align:middle;}
+.field .cs{display:block;}
+.cs-btn{position:relative;font-family:var(--font-sans);color:var(--text);background:#fff;border:1px solid var(--rule);
+  border-radius:6px;cursor:pointer;text-align:left;width:100%;white-space:nowrap;font-size:0.9rem;padding:7px 24px 7px 9px;line-height:1.2;}
+.field .cs-btn{font-size:0.95rem;padding:8px 24px 8px 10px;}
+.topbar .cs-btn,.energy-bar .cs-btn{font-size:0.82rem;padding:5px 22px 5px 7px;}
+.cs-btn:focus{outline:none;border-color:var(--gold);}
+.cs-btn::after{content:"▾";position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.7em;pointer-events:none;}
+.cs-list{position:absolute;top:calc(100% + 2px);left:0;z-index:60;min-width:100%;max-height:262px;overflow-y:auto;
+  background:#fff;border:1px solid var(--rule);border-radius:6px;box-shadow:0 6px 20px rgba(42,37,34,0.16);display:none;}
+.cs-list.show{display:block;}
+.cs-item{padding:7px 12px;font-size:0.88rem;white-space:nowrap;cursor:pointer;color:var(--text);}
+.cs-item:hover{background:var(--bg);}
+.cs-item.sel{background:#f3ecda;font-weight:600;}
+.cs-item.dis{color:var(--muted);cursor:default;}
+.cs-item.dis:hover{background:transparent;}
+.chk{display:flex;align-items:center;gap:6px;height:36px;font-size:0.9rem;color:var(--text);}
+.chk input{width:16px;height:16px;accent-color:var(--gold);}
+
+/* ===== 本月能量視圖 ===== */
+.energy{background:var(--bg-card);border:1px solid var(--rule);border-radius:10px;padding:16px;box-shadow:0 4px 20px rgba(42,37,34,0.06);}
+.energy-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.energy-bar .ctrl{display:inline-flex;align-items:center;gap:5px;font-size:0.8rem;color:var(--muted);}
+.energy-bar input,.energy-bar select{font-family:var(--font-sans);font-size:0.85rem;padding:5px 7px;border:1px solid var(--rule);border-radius:6px;background:#fff;color:var(--text);}
+.energy-bar input[type=number]{width:72px;}
+.energy-params{display:flex;flex-wrap:wrap;gap:12px;background:#fbf6ea;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-bottom:12px;}
+.energy-params .pf{display:flex;flex-direction:column;gap:3px;font-size:0.72rem;color:var(--muted);}
+.energy-params .pf input{width:66px;font-size:0.85rem;padding:4px 6px;border:1px solid var(--rule);border-radius:5px;}
+.energy-chart{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:linear-gradient(#fffdf8,#fbf6ea);padding:4px;}
+.energy-chart svg{display:block;}
+.en-dot{cursor:pointer;}
+.en-dot:hover{stroke:var(--strong);stroke-width:1.5;}
+.en-xlab{font-size:9px;fill:var(--muted);font-family:var(--font-sans);}
+.en-ylab{font-size:9px;fill:var(--accent);font-family:var(--font-sans);}
+.en-da{font-size:8.5px;fill:#a08a5a;font-family:var(--font-serif);}
+.energy-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:0.76rem;color:var(--muted);margin:8px 2px 0;}
+.energy-legend i{display:inline-block;border-radius:50%;margin-right:4px;vertical-align:middle;}
+.energy-detail{margin-top:12px;border:1px solid var(--rule);border-radius:8px;padding:12px 14px;background:#fffdf8;min-height:60px;}
+.ed-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--font-serif);color:var(--strong);}
+.ed-badge{font-size:0.74rem;font-weight:700;color:#fff;padding:1px 8px;border-radius:10px;}
+.ed-badge.aus{background:#5f8f4e;} .ed-badge.cau{background:#c2683f;} .ed-badge.mix{background:#b5803a;} .ed-badge.nor{background:#9c8f7d;}
+.ed-score{margin-left:auto;font-size:0.8rem;color:var(--muted);}
+.ed-note{margin:8px 0;color:var(--text);font-size:0.9rem;line-height:1.6;}
+.ed-trig{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.ed-trig .t{font-size:0.76rem;border:1px solid var(--rule);border-radius:6px;padding:2px 7px;background:var(--bg);font-family:var(--font-serif);}
+.ed-trig .t b{color:var(--major);}
+.ed-trig .t .lu{color:var(--hua-lu);} .ed-trig .t .quan{color:var(--hua-quan);} .ed-trig .t .ke{color:var(--hua-ke);} .ed-trig .t .ji{color:var(--hua-ji);font-weight:700;}
+.energy-foot{margin-top:10px;font-size:0.74rem;color:var(--muted);line-height:1.6;}
+
+@media(max-width:720px){
+  .board{grid-template-rows:repeat(4,minmax(132px,1fr));}
+  .cell{font-size:0.66rem;}
+  .star.major{font-size:0.78rem;}
+}
+
+/* ===== 手機直式優化 ===== */
+@media(max-width:480px){
+  body{padding:14px 8px 60px;}
+  h1{font-size:1.4rem;letter-spacing:0.12em;}
+  .subtitle{font-size:0.72rem;margin-bottom:14px;}
+  .topbar{padding:7px 8px;gap:6px;font-size:0.92rem;}
+  .topbar .vr{display:none;}
+  .input-card{padding:12px;}
+  .input-grid{grid-template-columns:repeat(2,1fr);}
+  .board{grid-template-rows:repeat(4,minmax(156px,1fr));}
+  .cell{padding:4px 4px 17px;}
+  .star-row{gap:1px 6px;}
+  .star-row.majors{padding-right:34px;} /* 讓出右上角大限歲數的位置，避免重疊 */
+  .star-row.majors .star{font-size:0.95rem;}
+  .star-row.lucky .star{font-size:0.8rem;}
+  .star-row.minor .star,.star-row.flow .star{font-size:0.66rem;}
+  .bri{font-size:0.56rem;}
+  .hua{font-size:0.64rem;padding:0 2px;}
+  .hua .lyr{font-size:0.46rem;}
+  .cell .dx{font-size:0.54rem;top:2px;right:4px;}
+  .cell .pname{font-size:0.72rem;}
+  .cell .gz{font-size:0.58rem;}
+  .prole{font-size:0.56rem;padding:0 2px;}
+  .proles{gap:3px;}
+  /* 中宮：標籤與數值改上下排，避免窄寬換行錯亂 */
+  .center{padding:9px 10px;gap:2px;}
+  .center h3{font-size:0.92rem;}
+  .center .nm{font-size:1.05rem;}
+  .center .row{flex-direction:column;align-items:flex-start;gap:0;padding:2px 0;}
+  .center .row span:first-child{font-size:0.66rem;}
+  .center .row span:last-child{text-align:left;font-size:0.74rem;}
+  .center .fnbtns{padding-top:5px;gap:5px;}
+  .center .fnbtns button{font-size:0.64rem;padding:4px 8px;}
+}
+</style>
+</head>
+<body>
+<h1>紫微斗數盤</h1>
+<div class="subtitle" id="subtitle">小六太乙 · 紫微排盤工具</div>
+
+<div class="topbar">
+  <span class="now">基準年 <input id="refYear" type="number" min="1900" max="2200" style="width:66px"> <b id="refGZ"></b></span>
+  <span class="pan" id="topPan">本命盤</span>
+  <span class="vr"></span>
+  <label class="ctrl">盤別
+    <select id="panType">
+      <option value="本命盤">本命盤</option>
+      <option value="大限盤">大限盤</option>
+      <option value="小限盤">小限盤</option>
+      <option value="流年盤">流年盤</option>
+      <option value="流月盤">流月盤</option>
+      <option value="流日盤">流日盤</option>
+      <option value="流時盤">流時盤</option>
+    </select>
+  </label>
+  <label class="ctrl" id="daWrap" style="display:none">大限
+    <select id="daPick"></select>
+  </label>
+  <label class="ctrl" id="xiaoWrap" style="display:none">小限·西元年
+    <input id="xiaoYear" type="number" min="1900" max="2200">
+    <span class="muted-inline" id="xiaoAge"></span>
+  </label>
+  <span class="ctrl" id="flWrap" style="display:none">
+    <span id="flYearW">流年<input id="flYear" type="number" min="1900" max="2200"></span>
+    <span id="flMonthW">國曆月<input id="flMonth" type="number" min="1" max="12"></span>
+    <span id="flDayW">日<input id="flDay" type="number" min="1" max="31"></span>
+    <span id="flHourW">時<select id="flHour">
+      <option value="0">子時</option><option value="1">丑時</option><option value="2">寅時</option>
+      <option value="3">卯時</option><option value="4">辰時</option><option value="5">巳時</option>
+      <option value="6">午時</option><option value="7">未時</option><option value="8">申時</option>
+      <option value="9">酉時</option><option value="10">戌時</option><option value="11" selected>亥時</option>
+    </select></span>
+    <span class="muted-inline" id="flInfo"></span>
+  </span>
+  <span class="vr"></span>
+  <button class="btn-ghost" id="prevHour">‹ 上一個時辰</button>
+  <button class="btn-ghost" id="nextHour">下一個時辰 ›</button>
+  <button class="btn-ghost" id="energyBtn">📈 本月能量</button>
+  <button class="btn-ghost" id="lifeBtn">📉 一生流年能量</button>
+</div>
+
+<div class="input-card">
+  <div class="input-grid">
+    <div class="field"><label>姓名</label><input id="name" value="Nakai"></div>
+    <div class="field"><label>性別</label>
+      <select id="gender"><option value="F">女</option><option value="M">男</option></select>
+    </div>
+    <div class="field"><label>國曆年</label><input id="y" type="number" value="1976"></div>
+    <div class="field"><label>國曆月</label><input id="m" type="number" value="10"></div>
+    <div class="field"><label>國曆日</label><input id="d" type="number" value="14"></div>
+    <div class="field"><label>出生時辰</label><select id="h">
+      <option value="0">子時 (23-01)</option>
+      <option value="1">丑時 (01-03)</option>
+      <option value="2">寅時 (03-05)</option>
+      <option value="3">卯時 (05-07)</option>
+      <option value="4">辰時 (07-09)</option>
+      <option value="5">巳時 (09-11)</option>
+      <option value="6">午時 (11-13)</option>
+      <option value="7">未時 (13-15)</option>
+      <option value="8">申時 (15-17)</option>
+      <option value="9">酉時 (17-19)</option>
+      <option value="10">戌時 (19-21)</option>
+      <option value="11" selected>亥時 (21-23)</option>
+    </select></div>
+    <div class="field"><label>晚子時(23–24)</label>
+      <label class="chk"><input type="checkbox" id="lateZi"><span>是（限子時）</span></label>
+    </div>
+    <div class="field"><label>閏月取月法</label>
+      <select id="leap">
+        <option value="split15">過十五作下月</option>
+        <option value="thisMonth">一律作本月</option>
+        <option value="nextMonth">一律作下月</option>
+      </select>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" id="go">排　盤</button>
+    <button class="btn-ghost" id="saveBtn">存檔 JSON</button>
+    <button class="btn-ghost" id="loadBtn">讀檔 JSON</button>
+    <input type="file" id="fileInput" accept="application/json,.json" style="display:none">
+    <span style="font-size:0.74rem;color:var(--muted)">存檔輸出 xiaoliu.ziwei-chart/v1，可供解盤工具讀取。</span>
+  </div>
+</div>
+
+<div id="board" class="board hidden"></div>
+
+<!-- 本月能量視圖 -->
+<div id="energyView" class="energy hidden">
+  <div class="energy-bar">
+    <button class="btn-ghost" id="backChart">‹ 返回命盤</button>
+    <label class="ctrl">農曆年<input id="enYear" type="number" min="1900" max="2100"></label>
+    <label class="ctrl">農曆月<select id="enMonth"></select></label>
+    <label class="ctrl hidden" id="enLeapWrap"><input type="checkbox" id="enLeap"> 閏月</label>
+    <button class="btn-ghost" id="enPrev">‹ 上月</button>
+    <button class="btn-ghost" id="enNext">下月 ›</button>
+    <span class="muted-inline" id="enSummary"></span>
+  </div>
+  <div id="enChart" class="energy-chart"></div>
+  <div id="enDetail" class="energy-detail"></div>
+  <div class="energy-foot">能量分數僅供曲線比較與排序，<b>不回頭推翻</b>吉日/慎日的師承質性判定。算法依「四化疊加＝能量強度」，框架取流日命宮三方四正，疊加層：生年＋大限＋<b>小限</b>＋流年＋流月＋流日（六層等權；小限四化以該年小限宮干起，起小限採通行「男順女逆、固定起宮」法，待核對）。<br>計分（固定）：每顆星 祿+10、權+10、科+10、忌−15；<b>祿權科齊→整顆星分數×2</b>；慎日＝框架疊忌數≥3。</div>
+</div>
+
+<!-- 一生流年能量視圖 -->
+<div id="lifeView" class="energy hidden">
+  <div class="energy-bar">
+    <button class="btn-ghost" id="backChart2">‹ 返回命盤</button>
+    <label class="ctrl">鎖定宮位<select id="lifePalace"></select></label>
+    <label class="ctrl">框架<select id="lifeFrame"><option value="annual">流年宮(預設)</option><option value="native">本命宮</option></select></label>
+    <label class="ctrl">排到虛歲<input id="lifeMax" type="number" min="20" max="130"></label>
+    <span class="muted-inline" id="lifeSummary"></span>
+  </div>
+  <div id="lifeChart" class="energy-chart"></div>
+  <div id="lifeDetail" class="energy-detail"></div>
+  <div class="energy-foot">人生視角：X 軸逐年（虛歲），年層級四化鏈＝生年＋大限＋小限＋流年（4 層等權，不含流月/日/時）。框架預設取「<b>該年流年的所鎖宮位</b>」三方四正（可切「本命宮」固定框架）。淡豎線＝大限交界、梯田底色＝各限分段，標宮干與年齡區間。Y 軸＝能量與功課的水位，低谷為「功課期：宜深耕勿強求」。能量分只畫高度，不推翻吉年/功課年的質性判定。<br>計分（固定）：每顆星 祿+10、權+10、科+10、忌−15；<b>祿權科齊→整顆星分數×2</b>；功課年＝框架疊忌數≥3。</div>
+</div>
+
+<div class="notes hidden" id="notes"></div>
+
+<script>
+/* ===== inlined: solar-lunar.js ===== */
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.solarLunar = factory());
+}(this, (function () { 'use strict';
+
+  // --- 基礎核心資料 ---
+  const gan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+  const zhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  const zodiac = ['鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊', '猴', '雞', '狗', '豬'];
+  const term = ["小寒", "大寒", "立春", "雨水", "驚蟄", "春分", "清明", "穀雨", "立夏", "小滿", "芒種", "夏至", "小暑", "大暑", "立秋", "處暑", "白露", "秋分", "寒露", "霜降", "立冬", "小雪", "大雪", "冬至"];
+  
+  // --- 八字排盤規則資料庫 ---
+  const monthStemTable = { '甲': '丙', '己': '丙', '乙': '戊', '庚': '戊', '丙': '庚', '辛': '庚', '丁': '壬', '壬': '壬', '戊': '甲', '癸': '甲' };
+  const hourStemTable = { '甲': '甲', '己': '甲', '乙': '丙', '庚': '丙', '丙': '戊', '辛': '戊', '丁': '庚', '壬': '庚', '戊': '壬', '癸': '壬' };
+  const TERM_ZHI_MAP = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 0, 0];
+  
+  // --- 1930-2050的節氣資料 ---
+  const PRECISE_TERM_DATA = {
+    1930: ["1-6 9:02", "1-21 2:32", "2-4 20:51", "2-19 16:59", "3-6 15:16", "3-21 16:29", "4-5 20:37", "4-21 4:05", "5-6 14:26", "5-22 3:41", "6-6 18:58", "6-22 11:52", "7-8 5:19", "7-23 22:41", "8-8 14:56", "8-24 5:26", "9-8 17:28", "9-24 2:35", "10-9 8:37", "10-24 11:25", "11-8 11:20", "11-23 8:34", "12-8 3:50", "12-22 21:39"],
+    1931: ["1-6 14:55", "1-21 8:17", "2-5 2:40", "2-19 22:40", "3-6 21:02", "3-21 22:06", "4-6 2:20", "4-21 9:39", "5-6 20:09", "5-22 9:15", "6-7 0:41", "6-22 17:28", "7-8 11:05", "7-24 4:21", "8-8 20:44", "8-24 11:10", "9-8 23:17", "9-24 8:23", "10-9 14:26", "10-24 17:15", "11-8 17:09", "11-23 14:24", "12-8 9:40", "12-23 3:29"],
+    1932: ["1-6 20:45", "1-21 14:06", "2-5 8:29", "2-20 4:28", "3-6 2:49", "3-21 3:53", "4-5 8:06", "4-20 15:28", "5-6 1:55", "5-21 15:06", "6-6 6:27", "6-21 23:22", "7-7 16:52", "7-23 10:18", "8-8 2:31", "8-23 17:06", "9-8 5:02", "9-23 14:15", "10-8 20:09", "10-23 23:03", "11-7 22:49", "11-22 20:10", "12-7 15:18", "12-22 9:14"],
+    1933: ["1-6 2:23", "1-20 19:52", "2-4 14:09", "2-19 10:16", "3-6 8:31", "3-21 9:43", "4-5 13:50", "4-20 21:18", "5-6 7:41", "5-21 20:56", "6-6 12:17", "6-22 5:11", "7-7 22:44", "7-23 16:05", "8-8 8:25", "8-23 22:52", "9-8 10:57", "9-23 20:01", "10-9 2:03", "10-24 4:48", "11-8 4:42", "11-23 1:53", "12-7 21:11", "12-22 14:57"],
+    1934: ["1-6 8:16", "1-21 1:36", "2-4 20:03", "2-19 16:01", "3-6 14:26", "3-21 15:27", "4-5 19:43", "4-21 3:00", "5-6 13:30", "5-22 2:34", "6-6 18:01", "6-22 10:47", "7-8 4:24", "7-23 21:42", "8-8 14:03", "8-24 4:31", "9-8 16:36", "9-24 1:45", "10-9 7:44", "10-24 10:36", "11-8 10:26", "11-23 7:44", "12-8 2:56", "12-22 20:49"],
+    1935: ["1-6 14:02", "1-21 7:28", "2-5 1:48", "2-19 21:51", "3-6 20:10", "3-21 21:17", "4-6 1:26", "4-21 8:50", "5-6 19:12", "5-22 8:24", "6-6 23:41", "6-22 16:37", "7-8 10:05", "7-24 3:32", "8-8 19:47", "8-24 10:23", "9-8 22:24", "9-24 7:38", "10-9 13:35", "10-24 16:29", "11-8 16:17", "11-23 13:35", "12-8 8:44", "12-23 2:37"],
+    1936: ["1-6 19:46", "1-21 13:12", "2-5 7:29", "2-20 3:33", "3-6 1:49", "3-21 2:57", "4-5 7:06", "4-20 14:31", "5-6 0:56", "5-21 14:07", "6-6 5:30", "6-21 22:21", "7-7 15:58", "7-23 9:17", "8-8 1:43", "8-23 16:10", "9-8 4:20", "9-23 13:25", "10-8 19:32", "10-23 22:18", "11-7 22:14", "11-22 19:24", "12-7 14:42", "12-22 8:26"],
+    1937: ["1-6 1:43", "1-20 19:00", "2-4 13:25", "2-19 9:20", "3-6 7:44", "3-21 8:45", "4-5 13:01", "4-20 20:19", "5-6 6:50", "5-21 19:57", "6-6 11:22", "6-22 4:11", "7-7 21:45", "7-23 15:06", "8-8 7:25", "8-23 21:57", "9-8 9:59", "9-23 19:12", "10-9 2:10", "10-24 5:06", "11-8 4:55", "11-23 2:16", "12-7 21:26", "12-22 15:21"],
+    1938: ["1-6 8:31", "1-21 1:58", "2-4 20:14", "2-19 16:19", "3-6 14:33", "3-21 15:43", "4-5 19:48", "4-21 3:14", "5-6 13:35", "5-22 2:50", "6-6 18:06", "6-22 11:03", "7-8 4:31", "7-23 21:57", "8-8 14:12", "8-24 4:45", "9-8 16:48", "9-24 1:59", "10-9 8:01", "10-24 10:53", "11-8 10:48", "11-23 8:06", "12-8 3:21", "12-22 21:13"],
+    1939: ["1-6 14:27", "1-21 7:50", "2-5 2:10", "2-19 22:09", "3-6 20:26", "3-21 21:28", "4-6 1:37", "4-21 8:55", "5-6 19:21", "5-22 8:26", "6-6 23:51", "6-22 16:39", "7-8 10:18", "7-24 3:36", "8-8 20:03", "8-24 10:31", "9-8 22:42", "9-24 7:49", "10-9 13:56", "10-24 16:45", "11-8 16:43", "11-23 13:58", "12-8 9:17", "12-23 3:05"],
+    1940: ["1-6 20:23", "1-21 13:44", "2-5 8:07", "2-20 4:03", "3-6 2:23", "3-21 3:23", "4-5 7:34", "4-20 14:50", "5-6 1:16", "5-21 14:22", "6-6 5:44", "6-21 22:36", "7-7 16:08", "7-23 9:34", "8-8 1:51", "8-23 16:28", "9-8 4:29", "9-23 13:45", "10-8 19:42", "10-23 22:39", "11-7 11:26", "11-22 19:48", "12-7 14:57", "12-22 8:54"],
+    1941: ["1-6 2:03", "1-20 19:33", "2-4 13:49", "2-19 9:56", "3-6 8:10", "3-21 9:20", "4-5 13:24", "4-20 20:50", "5-6 7:09", "5-21 20:22", "6-6 11:39", "6-22 4:33", "7-7 22:03", "7-23 15:26", "8-8 7:45", "8-23 22:16", "9-8 10:23", "9-23 19:32", "10-9 1:38", "10-24 4:27", "11-8 4:24", "11-23 1:37", "12-7 20:55", "12-22 14:44"],
+    1942: ["1-6 8:02", "1-21 1:23", "2-4 19:48", "2-19 15:46", "3-6 14:09", "3-21 15:10", "4-5 19:23", "4-21 2:39", "5-6 13:06", "5-22 2:08", "6-6 17:32", "6-22 10:16", "7-8 3:51", "7-23 21:07", "8-8 13:30", "8-24 3:58", "9-8 16:06", "9-24 1:16", "10-9 7:21", "10-24 10:15", "11-8 10:11", "11-23 7:30", "12-8 2:46", "12-22 20:39"],
+    1943: ["1-6 13:00", "1-21 7:00", "2-5 1:00", "2-19 21:00", "3-6 19:00", "3-21 21:00", "4-6 1:00", "4-21 8:00", "5-6 18:00", "5-22 8:00", "6-6 23:00", "6-22 16:00", "7-8 9:00", "7-24 3:00", "8-8 19:00", "8-24 9:00", "9-8 21:00", "9-24 7:00", "10-9 13:00", "10-24 16:00", "11-8 15:00", "11-23 13:00", "12-8 8:00", "12-23 2:00"],
+    1944: ["1-6 19:39", "1-21 13:07", "2-5 7:22", "2-20 3:27", "3-6 1:40", "3-21 2:48", "4-5 6:53", "4-20 14:17", "5-6 0:39", "5-21 13:50", "6-6 5:10", "6-21 22:02", "7-7 15:36", "7-23 8:55", "8-8 1:18", "8-23 15:46", "9-8 3:55", "9-23 13:01", "10-8 19:08", "10-23 21:55", "11-7 21:54", "11-22 19:07", "12-7 14:27", "12-22 8:14"],
+    1945: ["1-6 1:34", "1-20 18:53", "2-4 13:19", "2-19 9:14", "3-6 7:38", "3-21 8:37", "4-5 12:51", "4-20 20:06", "5-6 6:36", "5-21 19:40", "6-6 11:05", "6-22 3:51", "7-7 21:26", "7-23 14:45", "8-8 7:05", "8-23 21:35", "9-8 9:38", "9-23 17:49", "10-8 23:49", "10-24 2:43", "11-8 2:34", "11-22 23:55", "12-7 19:07", "12-22 13:03"],
+    1946: ["1-6 6:16", "1-20 23:44", "2-4 18:03", "2-19 14:08", "3-6 12:24", "3-21 13:32", "4-5 17:38", "4-21 1:02", "5-6 11:21", "5-22 1:33", "6-6 16:48", "6-22 9:44", "7-8 3:10", "7-23 20:37", "8-8 12:51", "8-24 3:26", "9-8 15:27", "9-24 0:40", "10-9 5:40", "10-24 8:34", "11-8 8:27", "11-23 5:46", "12-8 1:00", "12-22 18:53"],
+    1947: ["1-6 12:06", "1-21 5:31", "2-4 23:50", "2-19 19:51", "3-6 18:07", "3-21 19:12", "4-5 23:20", "4-21 7:39", "5-6 18:02", "5-22 7:08", "6-6 22:31", "6-22 15:18", "7-8 8:55", "7-24 2:14", "8-8 18:40", "8-24 9:08", "9-8 21:21", "9-24 6:28", "10-9 12:37", "10-24 15:25", "11-8 14:24", "11-23 11:37", "12-8 6:56", "12-23 0:42"],
+    1948: ["1-6 18:00", "1-21 11:18", "2-5 5:42", "2-20 1:36", "3-5 23:57", "3-21 0:56", "4-5 5:09", "4-20 12:24", "5-5 23:52", "5-21 12:57", "6-6 4:20", "6-21 21:10", "7-7 14:43", "7-23 8:07", "8-8 0:26", "8-23 15:02", "9-8 3:04", "9-23 12:21", "10-8 17:20", "10-23 20:17", "11-7 20:06", "11-22 17:28", "12-7 12:37", "12-22 6:33"],
+    1949: ["1-5 23:41", "1-20 17:08", "2-4 11:22", "2-19 7:27", "3-6 5:39", "3-21 6:47", "4-5 10:51", "4-20 18:17", "5-6 5:36", "5-21 18:50", "6-6 10:06", "6-22 3:02", "7-7 20:31", "7-23 13:56", "8-8 6:14", "8-23 20:48", "9-8 8:54", "9-23 18:05", "10-8 23:11", "10-24 2:02", "11-8 1:59", "11-22 23:16", "12-7 18:33", "12-22 12:22"],
+    1950: ["1-6 5:38", "1-20 22:59", "2-4 17:20", "2-19 13:17", "3-6 11:35", "3-21 12:35", "4-5 16:44", "4-20 23:59", "5-6 11:24", "5-22 0:27", "6-6 15:50", "6-22 8:35", "7-8 2:13", "7-23 19:29", "8-8 11:55", "8-24 2:23", "9-8 14:33", "9-23 23:43", "10-9 4:51", "10-24 7:44", "11-8 7:43", "11-23 5:02", "12-8 0:21", "12-22 18:13"],
+    1951: ["1-6 11:30", "1-21 4:52", "2-4 23:13", "2-19 19:09", "3-6 17:26", "3-21 18:25", "4-5 22:32", "4-21 5:48", "5-6 17:09", "5-22 6:15", "6-6 21:32", "6-22 14:24", "7-8 7:53", "7-24 1:20", "8-8 17:37", "8-24 8:16", "9-8 20:18", "9-24 5:36", "10-9 10:36", "10-24 13:35", "11-8 13:26", "11-23 10:51", "12-8 6:02", "12-23 0:00"],
+    1952: ["1-6 17:09", "1-21 10:38", "2-5 4:52", "2-20 0:56", "3-6 0:07", "3-21 1:13", "4-5 5:15", "4-20 12:36", "5-5 22:53", "5-21 12:03", "6-6 3:20", "6-21 20:12", "7-7 13:44", "7-23 7:07", "8-7 23:30", "8-23 14:02", "9-8 2:13", "9-23 11:23", "10-8 17:32", "10-23 20:22", "11-7 19:21", "11-22 16:35", "12-7 11:55", "12-22 5:43"],
+    1953: ["1-5 23:02", "1-20 16:21", "2-4 10:45", "2-19 6:41", "3-6 5:02", "3-21 6:00", "4-5 11:12", "4-20 18:25", "5-6 4:52", "5-21 17:52", "6-6 9:16", "6-22 1:59", "7-7 19:34", "7-23 12:52", "8-8 5:14", "8-23 19:45", "9-8 7:52", "9-23 17:05", "10-8 23:10", "10-24 2:06", "11-8 1:00", "11-22 22:22", "12-7 17:36", "12-22 11:31"],
+    1954: ["1-6 4:45", "1-20 22:11", "2-4 16:30", "2-19 12:32", "3-6 10:48", "3-21 11:53", "4-5 16:59", "4-21 0:19", "5-6 10:38", "5-21 23:47", "6-6 15:00", "6-22 7:54", "7-8 1:19", "7-23 18:44", "8-8 10:59", "8-24 1:35", "9-8 13:37", "9-23 22:55", "10-9 4:57", "10-24 7:56", "11-8 6:50", "11-23 4:14", "12-7 23:28", "12-22 17:24"],
+    1955: ["1-6 10:35", "1-21 4:01", "2-4 22:17", "2-19 18:18", "3-6 16:30", "3-21 17:35", "4-5 22:38", "4-21 5:57", "5-6 16:17", "5-22 5:24", "6-6 20:43", "6-22 13:31", "7-8 7:05", "7-24 0:24", "8-8 16:50", "8-24 7:18", "9-8 19:31", "9-24 4:40", "10-9 9:52", "10-24 12:43", "11-8 12:45", "11-23 10:00", "12-8 5:22", "12-22 23:10"],
+    1956: ["1-6 16:30", "1-21 9:48", "2-5 4:11", "2-20 0:04", "3-5 22:24", "3-20 23:20", "4-5 4:31", "4-20 11:43", "5-5 22:09", "5-21 11:12", "6-6 2:35", "6-21 19:23", "7-7 12:58", "7-23 6:19", "8-7 22:40", "8-23 13:14", "9-8 1:18", "9-23 10:35", "10-8 15:35", "10-23 18:34", "11-7 18:25", "11-22 15:49", "12-7 11:02", "12-22 4:59"],
+    1957: ["1-5 22:10", "1-20 15:38", "2-4 9:54", "2-19 5:57", "3-6 4:10", "3-21 5:16", "4-5 10:18", "4-20 17:41", "5-6 3:58", "5-21 17:10", "6-6 8:24", "6-22 1:20", "7-7 18:48", "7-23 12:14", "8-8 4:32", "8-23 19:07", "9-8 7:12", "9-23 16:26", "10-8 21:29", "10-24 0:24", "11-8 0:20", "11-22 21:39", "12-7 16:55", "12-22 10:48"],
+    1958: ["1-6 4:04", "1-20 21:28", "2-4 15:49", "2-19 11:48", "3-6 10:04", "3-21 11:05", "4-5 16:12", "4-20 23:26", "5-6 9:49", "5-21 22:50", "6-6 14:12", "6-22 6:56", "7-8 0:33", "7-23 17:50", "8-8 10:17", "8-24 0:45", "9-8 12:58", "9-23 22:08", "10-9 3:19", "10-24 6:11", "11-8 6:11", "11-23 3:29", "12-7 22:49", "12-22 16:39"],
+    1959: ["1-6 9:58", "1-21 3:18", "2-4 21:42", "2-19 17:37", "3-6 15:56", "3-21 16:54", "4-5 22:03", "4-21 5:16", "5-6 15:38", "5-22 4:42", "6-6 20:00", "6-22 12:49", "7-8 6:19", "7-23 23:45", "8-8 16:04", "8-24 6:43", "9-8 18:47", "9-24 4:08", "10-9 9:09", "10-24 12:10", "11-8 12:02", "11-23 9:26", "12-8 4:37", "12-22 22:34"],
+    1960: ["1-6 15:42", "1-21 9:10", "2-5 3:23", "2-19 23:26", "3-5 21:36", "3-20 22:42", "4-5 2:43", "4-20 10:05", "5-5 20:22", "5-21 9:33", "6-6 1:48", "6-21 18:42", "7-7 12:12", "7-23 5:37", "8-7 21:59", "8-23 12:34", "9-8 0:45", "9-23 9:58", "10-8 15:08", "10-23 18:01", "11-7 18:02", "11-22 15:18", "12-7 10:37", "12-22 4:25"],
+    1961: ["1-5 21:42", "1-20 15:01", "2-4 9:22", "2-19 5:16", "3-6 3:34", "3-21 4:32", "4-5 8:42", "4-20 15:55", "5-6 2:21", "5-21 15:22", "6-6 7:45", "6-22 0:30", "7-7 18:06", "7-23 11:23", "8-8 3:48", "8-23 18:18", "9-8 6:29", "9-23 15:42", "10-8 20:50", "10-23 23:47", "11-7 23:46", "11-22 21:07", "12-7 16:25", "12-22 10:19"],
+    1962: ["1-6 3:34", "1-20 20:57", "2-4 15:17", "2-19 11:14", "3-6 9:29", "3-21 10:29", "4-5 14:34", "4-20 21:50", "5-6 8:09", "5-21 21:16", "6-6 12:31", "6-22 5:24", "7-7 22:51", "7-23 16:17", "8-8 8:33", "8-23 23:12", "9-8 11:15", "9-23 20:35", "10-9 2:37", "10-24 5:40", "11-8 5:34", "11-23 3:01", "12-7 22:16", "12-22 16:15"],
+    1963: ["1-6 9:26", "1-21 2:53", "2-4 21:07", "2-19 17:08", "3-6 15:17", "3-21 16:19", "4-5 20:18", "4-21 3:36", "5-6 13:51", "5-22 2:58", "6-6 18:14", "6-22 11:04", "7-8 4:37", "7-23 21:59", "8-8 14:25", "8-24 4:57", "9-8 17:11", "9-24 2:23", "10-9 8:36", "10-24 11:28", "11-8 11:32", "11-23 8:49", "12-8 4:12", "12-22 22:01"],
+    1964: ["1-6 15:22", "1-21 8:41", "2-5 3:04", "2-19 22:57", "3-5 21:15", "3-20 22:09", "4-5 2:18", "4-20 9:27", "5-5 19:51", "5-21 8:49", "6-6 0:11", "6-21 16:56", "7-7 10:32", "7-23 3:52", "8-7 20:16", "8-23 10:51", "9-7 22:59", "9-23 8:16", "10-8 14:21", "10-23 17:20", "11-7 17:15", "11-22 14:38", "12-7 9:53", "12-22 3:49"],
+    1965: ["1-5 21:01", "1-20 14:28", "2-4 8:46", "2-19 4:47", "3-6 3:00", "3-21 4:04", "4-5 8:06", "4-20 15:26", "5-6 1:41", "5-21 14:50", "6-6 6:02", "6-21 22:55", "7-7 16:21", "7-23 9:48", "8-8 2:04", "8-23 16:42", "9-8 4:47", "9-23 14:05", "10-8 20:11", "10-23 23:09", "11-7 23:06", "11-22 20:29", "12-7 15:45", "12-22 9:40"],
+    1966: ["1-6 2:54", "1-20 20:19", "2-4 14:37", "2-19 10:37", "3-6 8:51", "3-21 9:52", "4-5 13:56", "4-20 21:11", "5-6 7:30", "5-21 20:32", "6-6 11:49", "6-22 4:33", "7-7 22:06", "7-23 15:23", "8-8 7:48", "8-23 22:17", "9-8 10:32", "9-23 19:43", "10-9 1:56", "10-24 4:50", "11-8 4:55", "11-23 2:14", "12-7 21:37", "12-22 15:28"],
+    1967: ["1-6 8:48", "1-21 2:07", "2-4 20:30", "2-19 16:23", "3-6 14:41", "3-21 15:36", "4-5 19:44", "4-21 2:55", "5-6 13:17", "5-22 2:17", "6-6 17:36", "6-22 10:22", "7-8 3:53", "7-23 21:15", "8-8 13:34", "8-24 4:12", "9-8 16:17", "9-24 1:38", "10-9 7:41", "10-24 10:43", "11-8 10:37", "11-23 8:04", "12-8 3:17", "12-22 21:16"],
+    1968: ["1-6 14:26", "1-21 7:54", "2-5 2:07", "2-19 22:09", "3-5 20:17", "3-20 21:22", "4-5 1:20", "4-20 8:41", "5-5 18:55", "5-21 8:05", "6-5 23:19", "6-21 16:13", "7-7 9:41", "7-23 3:07", "8-7 19:27", "8-23 10:02", "9-7 22:11", "9-23 7:26", "10-8 13:34", "10-23 16:29", "11-7 16:29", "11-22 13:48", "12-7 9:08", "12-22 2:59"],
+    1969: ["1-5 20:16", "1-20 13:38", "2-4 7:58", "2-19 3:54", "3-6 2:10", "3-21 3:08", "4-5 7:14", "4-20 14:26", "5-6 0:49", "5-21 13:49", "6-6 5:11", "6-21 21:55", "7-7 15:31", "7-23 8:48", "8-8 1:14", "8-23 15:43", "9-8 3:55", "9-23 13:06", "10-8 19:16", "10-23 22:11", "11-7 22:11", "11-22 19:31", "12-7 14:51", "12-22 8:43"],
+    1970: ["1-6 2:01", "1-20 19:23", "2-4 13:45", "2-19 9:41", "3-6 7:58", "3-21 8:56", "4-5 13:01", "4-20 20:14", "5-6 6:33", "5-21 19:37", "6-6 10:52", "6-22 3:42", "7-7 21:10", "7-23 14:36", "8-8 6:54", "8-23 21:33", "9-8 9:37", "9-23 18:58", "10-9 1:01", "10-24 4:04", "11-8 3:57", "11-23 1:24", "12-7 20:37", "12-22 14:35"],
+    1971: ["1-6 7:45", "1-21 1:12", "2-4 19:25", "2-19 15:26", "3-6 13:34", "3-21 14:38", "4-5 18:35", "4-21 1:54", "5-6 12:08", "5-22 1:14", "6-6 16:28", "6-22 9:19", "7-8 2:51", "7-23 20:14", "8-8 12:40", "8-24 3:15", "9-8 15:30", "9-24 0:44", "10-9 6:58", "10-24 9:53", "11-8 9:56", "11-23 7:13", "12-8 2:35", "12-22 20:23"],
+    1972: ["1-6 13:41", "1-21 6:58", "2-5 1:20", "2-19 21:11", "3-5 19:28", "3-20 20:21", "4-5 0:28", "4-20 7:37", "5-5 18:01", "5-21 6:59", "6-5 22:21", "6-21 15:06", "7-7 8:42", "7-23 2:02", "8-7 18:28", "8-23 9:02", "9-7 21:15", "9-23 6:32", "10-8 12:41", "10-23 15:41", "11-7 15:39", "11-22 13:02", "12-7 8:18", "12-22 2:12"],
+    1973: ["1-5 19:25", "1-20 12:48", "2-4 7:04", "2-19 3:01", "3-6 1:12", "3-21 2:12", "4-5 6:13", "4-20 13:30", "5-5 23:46", "5-21 12:53", "6-6 4:06", "6-21 21:00", "7-7 14:27", "7-23 7:55", "8-8 0:12", "8-23 14:53", "9-8 2:59", "9-23 12:21", "10-8 18:27", "10-23 21:30", "11-7 21:27", "11-22 18:54", "12-7 14:10", "12-22 8:07"],
+    1974: ["1-6 1:19", "1-20 18:45", "2-4 13:00", "2-19 8:58", "3-6 7:07", "3-21 8:06", "4-5 13:04", "4-20 20:18", "5-6 6:33", "5-21 19:36", "6-6 10:51", "6-22 3:37", "7-7 21:11", "7-23 14:30", "8-8 6:57", "8-23 21:28", "9-8 9:45", "9-23 18:58", "10-9 0:14", "10-24 3:10", "11-8 3:17", "11-23 0:38", "12-7 20:04", "12-22 13:55"],
+    1975: ["1-6 7:17", "1-21 0:36", "2-4 18:59", "2-19 14:49", "3-6 13:05", "3-21 13:56", "4-5 19:01", "4-21 2:07", "5-6 12:27", "5-22 1:23", "6-6 16:42", "6-22 9:26", "7-8 2:59", "7-23 20:21", "8-8 12:44", "8-24 3:23", "9-8 15:33", "9-24 0:55", "10-9 6:02", "10-24 9:06", "11-8 9:02", "11-23 6:30", "12-8 1:46", "12-22 19:45"],
+    1976: ["1-6 12:57", "1-21 6:25", "2-5 0:39", "2-19 20:39", "3-5 18:48", "3-20 19:49", "4-4 23:46", "4-20 7:02", "5-5 17:14", "5-21 6:21", "6-5 21:31", "6-21 14:24", "7-7 7:50", "7-23 1:18", "8-7 17:38", "8-23 8:18", "9-7 20:28", "9-23 5:48", "10-8 11:58", "10-23 14:58", "11-7 14:58", "11-22 12:21", "12-7 7:40", "12-22 1:35"],
+    1977: ["1-5 18:51", "1-20 12:14", "2-4 6:33", "2-19 2:30", "3-6 0:44", "3-21 1:42", "4-5 5:45", "4-20 12:57", "5-5 23:15", "5-21 12:14", "6-6 3:32", "6-21 20:13", "7-7 13:47", "7-23 7:03", "8-7 23:30", "8-23 14:00", "9-8 2:15", "9-23 11:29", "10-8 17:43", "10-23 20:40", "11-7 20:45", "11-22 18:06", "12-7 13:30", "12-22 7:23"],
+    1978: ["1-6 0:43", "1-20 18:03", "2-4 12:26", "2-19 8:20", "3-6 6:38", "3-21 7:33", "4-5 11:39", "4-20 18:49", "5-6 5:08", "5-21 18:08", "6-6 9:23", "6-22 2:09", "7-7 19:36", "7-23 13:00", "8-8 5:17", "8-23 19:56", "9-8 8:02", "9-23 17:25", "10-8 23:30", "10-24 2:37", "11-8 2:34", "11-23 0:04", "12-7 19:20", "12-22 13:20"],
+    1979: ["1-6 6:31", "1-20 23:59", "2-4 18:12", "2-19 14:13", "3-6 12:19", "3-21 13:21", "4-5 17:17", "4-21 0:35", "5-6 10:47", "5-21 23:53", "6-6 15:05", "6-22 7:56", "7-8 2:24", "7-23 19:48", "8-8 12:10", "8-24 2:46", "9-8 14:59", "9-24 0:16", "10-9 5:30", "10-24 8:27", "11-8 8:32", "11-23 5:54", "12-8 1:17", "12-22 19:09"],
+    1980: ["1-6 12:28", "1-21 5:48", "2-5 0:09", "2-19 20:01", "3-5 18:16", "3-20 19:09", "4-4 23:14", "4-20 6:22", "5-5 16:44", "5-21 5:42", "6-5 21:03", "6-21 13:47", "7-7 7:23", "7-23 0:41", "8-7 17:08", "8-23 7:40", "9-7 19:53", "9-23 5:08", "10-8 11:19", "10-23 14:17", "11-7 14:18", "11-22 11:41", "12-7 7:01", "12-22 0:56"],
+    1981: ["1-5 18:12", "1-20 11:35", "2-4 5:55", "2-19 1:51", "3-6 0:05", "3-21 1:02", "4-5 5:05", "4-20 12:18", "5-5 22:34", "5-21 11:39", "6-6 2:52", "6-21 19:44", "7-7 13:11", "7-23 6:39", "8-7 22:57", "8-23 13:38", "9-8 1:43", "9-23 11:05", "10-8 17:09", "10-23 20:12", "11-7 20:08", "11-22 17:35", "12-7 12:51", "12-22 6:50"],
+    1982: ["1-6 0:02", "1-20 17:30", "2-4 11:45", "2-19 7:46", "3-6 5:54", "3-21 6:55", "4-5 10:52", "4-20 18:07", "5-6 4:19", "5-21 17:22", "6-6 8:35", "6-22 1:22", "7-7 18:54", "7-23 12:15", "8-8 4:41", "8-23 19:15", "9-8 7:31", "9-23 16:46", "10-8 23:02", "10-24 1:57", "11-8 2:04", "11-22 23:23", "12-7 18:48", "12-22 12:38"],
+    1983: ["1-6 5:58", "1-20 23:16", "2-4 17:39", "2-19 13:30", "3-6 11:47", "3-21 12:38", "4-5 16:44", "4-20 23:50", "5-6 10:10", "5-21 23:06", "6-6 14:25", "6-22 7:08", "7-8 0:43", "7-23 18:04", "8-8 10:29", "8-24 1:07", "9-8 13:20", "9-23 22:41", "10-9 4:51", "10-24 7:54", "11-8 7:52", "11-23 5:18", "12-8 0:33", "12-22 18:29"],
+    1984: ["1-6 11:40", "1-21 5:05", "2-4 23:18", "2-19 19:16", "3-5 17:24", "3-20 18:24", "4-4 22:22", "4-20 5:38", "5-5 15:50", "5-21 4:57", "6-5 20:08", "6-21 13:02", "7-7 6:29", "7-22 23:58", "8-7 16:17", "8-23 7:00", "9-7 19:09", "9-23 4:32", "10-8 10:42", "10-23 13:45", "11-7 13:45", "11-22 11:10", "12-7 6:28", "12-22 0:22"],
+    1985: ["1-5 17:35", "1-20 10:57", "2-4 5:11", "2-19 1:07", "3-5 23:16", "3-21 0:13", "4-5 4:13", "4-20 11:25", "5-5 21:42", "5-21 10:42", "6-6 1:59", "6-21 18:44", "7-7 12:18", "7-23 5:36", "8-7 22:04", "8-23 12:35", "9-8 0:53", "9-23 10:07", "10-8 16:24", "10-23 19:21", "11-7 19:29", "11-22 16:50", "12-7 12:16", "12-22 6:07"],
+    1986: ["1-5 23:28", "1-20 16:46", "2-4 11:07", "2-19 6:57", "3-6 5:12", "3-21 6:02", "4-5 10:06", "4-20 17:12", "5-6 3:30", "5-21 16:27", "6-6 7:44", "6-22 0:29", "7-7 18:00", "7-23 11:24", "8-8 3:45", "8-23 18:25", "9-8 6:34", "9-23 15:58", "10-8 22:06", "10-24 1:14", "11-8 1:12", "11-22 22:44", "12-7 18:00", "12-22 12:02"],
+    1987: ["1-6 5:13", "1-20 22:40", "2-4 16:51", "2-19 12:49", "3-6 10:53", "3-21 11:51", "4-5 15:44", "4-20 23:57", "5-6 10:05", "5-21 23:10", "6-6 14:18", "6-22 7:10", "7-8 0:38", "7-23 18:06", "8-8 10:29", "8-24 1:09", "9-8 13:24", "9-23 21:45", "10-9 3:59", "10-24 7:00", "11-8 7:05", "11-23 4:29", "12-7 23:52", "12-22 17:45"],
+    1988: ["1-6 11:03", "1-21 4:24", "2-4 22:42", "2-19 18:35", "3-5 16:46", "3-20 17:38", "4-4 21:39", "4-20 5:44", "5-5 16:01", "5-21 4:56", "6-5 20:14", "6-21 12:56", "7-7 6:32", "7-22 23:51", "8-7 16:20", "8-23 6:54", "9-7 19:11", "9-23 3:28", "10-8 9:44", "10-23 12:44", "11-7 12:48", "11-22 10:11", "12-7 5:34", "12-21 23:27"],
+    1989: ["1-5 16:45", "1-20 10:06", "2-4 4:27", "2-19 0:20", "3-5 22:34", "3-20 23:28", "4-5 3:29", "4-20 11:38", "5-5 21:53", "5-21 10:53", "6-6 2:05", "6-21 18:53", "7-7 12:19", "7-23 5:45", "8-7 22:03", "8-23 12:46", "9-8 0:53", "9-23 9:19", "10-8 15:27", "10-23 18:35", "11-7 18:33", "11-22 16:04", "12-7 11:20", "12-22 5:22"],
+    1990: ["1-5 22:33", "1-20 16:01", "2-4 10:14", "2-19 6:14", "3-6 4:19", "3-21 5:19", "4-5 9:12", "4-20 17:26", "5-6 3:35", "5-21 16:37", "6-6 7:46", "6-22 0:32", "7-7 18:00", "7-23 11:21", "8-8 3:45", "8-23 18:20", "9-8 6:37", "9-23 14:55", "10-8 21:13", "10-24 0:13", "11-8 0:23", "11-22 21:46", "12-7 17:14", "12-22 11:06"],
+    1991: ["1-6 4:28", "1-20 21:47", "2-4 16:08", "2-19 11:58", "3-6 10:12", "3-21 11:01", "4-5 15:04", "4-20 23:08", "5-6 9:26", "5-21 22:20", "6-6 13:38", "6-22 6:18", "7-7 23:53", "7-23 17:11", "8-8 9:37", "8-24 0:12", "9-8 12:27", "9-23 20:48", "10-9 3:01", "10-24 6:05", "11-8 6:07", "11-23 3:35", "12-7 22:56", "12-22 16:53"],
+    1992: ["1-6 10:08", "1-21 3:32", "2-4 21:48", "2-19 17:43", "3-5 15:52", "3-20 16:48", "4-4 20:45", "4-20 3:56", "5-5 14:08", "5-21 3:12", "6-5 18:22", "6-21 11:14", "7-7 4:40", "7-22 22:08", "8-7 14:27", "8-23 5:10", "9-7 17:18", "9-23 2:42", "10-8 8:51", "10-23 11:57", "11-7 11:57", "11-22 9:25", "12-7 4:44", "12-21 22:43"],
+    1993: ["1-5 15:56", "1-20 9:22", "2-4 3:37", "2-18 23:35", "3-5 21:42", "3-20 22:40", "4-5 2:37", "4-20 9:48", "5-5 20:01", "5-21 9:01", "6-6 0:15", "6-21 16:59", "7-7 10:32", "7-23 3:50", "8-7 20:17", "8-23 10:50", "9-7 23:07", "9-23 8:22", "10-8 14:40", "10-23 17:37", "11-7 17:45", "11-22 15:06", "12-7 10:33", "12-22 4:25"],
+    1994: ["1-5 21:48", "1-20 15:07", "2-4 9:30", "2-19 5:21", "3-6 3:37", "3-21 4:28", "4-5 8:31", "4-20 15:36", "5-6 1:54", "5-21 14:48", "6-6 6:04", "6-21 22:47", "7-7 16:19", "7-23 9:40", "8-8 2:04", "8-23 16:43", "9-8 4:55", "9-23 14:19", "10-8 20:29", "10-23 23:36", "11-7 23:35", "11-22 21:05", "12-7 16:22", "12-22 10:22"],
+    1995: ["1-6 3:34", "1-20 21:00", "2-4 15:12", "2-19 11:10", "3-6 9:16", "3-21 10:14", "4-5 14:08", "4-20 21:21", "5-6 7:30", "5-21 20:34", "6-6 11:42", "6-22 4:34", "7-7 22:00", "7-23 15:29", "8-8 7:51", "8-23 22:34", "9-8 10:48", "9-23 20:12", "10-9 2:27", "10-24 5:31", "11-8 5:35", "11-23 3:01", "12-7 22:22", "12-22 16:16"],
+    1996: ["1-6 9:31", "1-21 2:52", "2-4 21:07", "2-19 17:00", "3-5 15:09", "3-20 16:03", "4-4 20:02", "4-20 3:09", "5-5 13:26", "5-21 2:23", "6-5 17:40", "6-21 10:23", "7-7 3:59", "7-22 21:18", "8-7 13:48", "8-23 4:22", "9-7 16:42", "9-23 2:00", "10-8 8:18", "10-23 11:18", "11-7 11:26", "11-22 8:49", "12-7 4:14", "12-21 22:05"],
+    1997: ["1-5 15:24", "1-20 8:42", "2-4 3:01", "2-18 22:51", "3-5 21:04", "3-20 21:54", "4-5 1:56", "4-20 9:02", "5-5 19:19", "5-21 8:17", "6-5 23:32", "6-21 16:19", "7-7 9:49", "7-23 3:15", "8-7 19:36", "8-23 10:19", "9-7 22:28", "9-23 7:55", "10-8 14:05", "10-23 17:14", "11-7 17:14", "11-22 14:47", "12-7 10:04", "12-22 4:07"],
+    1998: ["1-5 21:18", "1-20 14:46", "2-4 8:56", "2-19 4:54", "3-6 2:57", "3-21 3:54", "4-5 7:44", "4-20 14:56", "5-6 1:03", "5-21 14:05", "6-6 5:13", "6-21 22:02", "7-7 15:30", "7-23 8:55", "8-8 1:19", "8-23 15:58", "9-8 4:15", "9-23 13:37", "10-8 19:55", "10-23 22:58", "11-7 23:08", "11-22 20:34", "12-7 16:01", "12-22 9:56"],
+    1999: ["1-6 3:17", "1-20 20:37", "2-4 14:57", "2-19 10:46", "3-6 8:57", "3-21 9:45", "4-5 13:44", "4-20 20:46", "5-6 7:01", "5-21 19:52", "6-6 11:09", "6-22 3:49", "7-7 21:24", "7-23 14:44", "8-8 7:14", "8-23 21:51", "9-8 10:10", "9-23 19:31", "10-9 1:48", "10-24 4:52", "11-8 4:57", "11-23 2:24", "12-7 21:47", "12-22 15:43"],
+    2000: ["1-6 9:00", "1-21 2:23", "2-4 20:40", "2-19 16:33", "3-5 14:42", "3-20 15:35", "4-4 19:31", "4-20 2:39", "5-5 12:50", "5-21 1:49", "6-5 16:58", "6-21 9:47", "7-7 3:13", "7-22 20:42", "8-7 13:02", "8-23 3:48", "9-7 15:59", "9-23 1:27", "10-8 7:38", "10-23 10:47", "11-7 10:48", "11-22 8:19", "12-7 3:37", "12-21 21:37"],
+    2001: ["1-5 14:49", "1-20 8:16", "2-4 2:28", "2-18 22:27", "3-5 20:32", "3-20 21:30", "4-5 1:24", "4-20 8:35", "5-5 18:44", "5-21 7:44", "6-5 22:53", "6-21 15:37", "7-7 9:06", "7-23 2:26", "8-7 18:52", "8-23 9:27", "9-7 21:46", "9-23 7:04", "10-8 13:25", "10-23 16:25", "11-7 16:36", "11-22 14:00", "12-7 9:28", "12-22 3:21"],
+    2002: ["1-5 20:43", "1-20 14:02", "2-4 8:24", "2-19 4:13", "3-6 2:27", "3-21 3:16", "4-5 7:18", "4-20 14:20", "5-6 0:37", "5-21 13:29", "6-6 4:44", "6-21 21:24", "7-7 14:56", "7-23 8:14", "8-8 0:39", "8-23 15:16", "9-8 3:31", "9-23 12:55", "10-8 19:09", "10-23 22:17", "11-7 22:21", "11-22 19:53", "12-7 15:14", "12-22 9:14"],
+    2003: ["1-6 2:27", "1-20 19:52", "2-4 14:05", "2-19 10:00", "3-6 8:04", "3-21 8:59", "4-5 12:52", "4-20 20:02", "5-6 6:10", "5-21 19:12", "6-6 10:19", "6-22 3:10", "7-7 20:35", "7-23 14:04", "8-8 6:24", "8-23 21:08", "9-8 9:20", "9-23 18:46", "10-9 1:00", "10-24 4:08", "11-8 4:13", "11-23 1:43", "12-7 21:05", "12-22 15:03"],
+    2004: ["1-6 8:18", "1-21 1:42", "2-4 19:56", "2-19 15:49", "3-5 13:55", "3-20 14:48", "4-4 18:43", "4-20 1:50", "5-5 12:02", "5-21 0:59", "6-5 16:13", "6-21 8:56", "7-7 2:31", "7-22 19:50", "8-7 12:19", "8-23 2:53", "9-7 15:12", "9-23 0:29", "10-8 6:49", "10-23 9:48", "11-7 9:58", "11-22 7:21", "12-7 2:48", "12-21 20:41"],
+    2005: ["1-5 14:02", "1-20 7:21", "2-4 1:43", "2-18 21:31", "3-5 19:45", "3-20 20:33", "4-5 0:34", "4-20 7:37", "5-5 17:52", "5-21 6:47", "6-5 22:01", "6-21 14:46", "7-7 8:16", "7-23 1:40", "8-7 18:03", "8-23 8:45", "9-7 20:56", "9-23 6:23", "10-8 12:33", "10-23 15:42", "11-7 15:42", "11-22 13:14", "12-7 8:32", "12-22 2:34"],
+    2006: ["1-5 19:46", "1-20 13:15", "2-4 7:27", "2-19 3:25", "3-6 1:28", "3-21 2:25", "4-5 6:15", "4-20 13:26", "5-5 23:30", "5-21 12:31", "6-6 3:36", "6-21 20:25", "7-7 13:51", "7-23 7:17", "8-7 23:40", "8-23 14:22", "9-8 2:39", "9-23 12:03", "10-8 18:21", "10-23 21:26", "11-7 21:34", "11-22 19:01", "12-7 14:26", "12-22 8:22"],
+    2007: ["1-6 1:40", "1-20 19:00", "2-4 13:18", "2-19 9:08", "3-6 7:17", "3-21 8:07", "4-5 12:04", "4-20 19:07", "5-6 5:20", "5-21 18:11", "6-6 9:27", "6-22 2:06", "7-7 19:41", "7-23 13:00", "8-8 5:31", "8-23 20:07", "9-8 8:29", "9-23 17:51", "10-9 0:11", "10-24 3:15", "11-8 3:24", "11-23 0:49", "12-7 20:14", "12-22 14:07"],
+    2008: ["1-6 7:24", "1-21 0:43", "2-4 19:00", "2-19 14:49", "3-5 12:58", "3-20 13:48", "4-4 17:45", "4-20 0:51", "5-5 11:03", "5-21 0:00", "6-5 15:11", "6-21 7:59", "7-7 1:26", "7-22 18:54", "8-7 11:16", "8-23 2:02", "9-7 14:14", "9-22 23:44", "10-8 5:56", "10-23 9:08", "11-7 9:10", "11-22 6:44", "12-7 2:02", "12-21 20:03"],
+    2009: ["1-5 13:14", "1-20 6:40", "2-4 0:49", "2-18 20:46", "3-5 18:47", "3-20 19:43", "4-4 23:33", "4-20 6:44", "5-5 16:50", "5-21 5:51", "6-5 20:59", "6-21 13:45", "7-7 7:13", "7-23 0:35", "8-7 17:01", "8-23 7:38", "9-7 19:57", "9-23 5:18", "10-8 11:40", "10-23 14:43", "11-7 14:56", "11-22 12:22", "12-7 7:52", "12-22 1:46"],
+    2010: ["1-5 19:08", "1-20 12:27", "2-4 6:47", "2-19 2:35", "3-6 0:46", "3-21 1:32", "4-5 5:30", "4-20 12:29", "5-5 22:44", "5-21 11:33", "6-6 2:49", "6-21 19:28", "7-7 13:02", "7-23 6:21", "8-7 22:49", "8-23 13:26", "9-8 1:44", "9-23 11:09", "10-8 17:26", "10-23 20:35", "11-7 20:42", "11-22 18:14", "12-7 13:38", "12-22 7:38"],
+    2011: ["1-6 0:54", "1-20 18:18", "2-4 12:32", "2-19 8:25", "3-6 6:29", "3-21 7:20", "4-5 11:11", "4-20 18:17", "5-6 4:23", "5-21 17:21", "6-6 8:27", "6-22 1:16", "7-7 18:42", "7-23 12:11", "8-8 4:33", "8-23 19:20", "9-8 7:34", "9-23 17:04", "10-8 23:19", "10-24 2:30", "11-8 2:34", "11-23 0:07", "12-7 19:29", "12-22 13:30"],
+    2012: ["1-6 6:43", "1-21 0:09", "2-4 18:22", "2-19 14:17", "3-5 12:21", "3-20 13:14", "4-4 17:05", "4-20 0:12", "5-5 10:19", "5-20 23:15", "6-5 14:25", "6-21 7:08", "7-7 0:40", "7-22 18:00", "8-7 10:30", "8-23 1:06", "9-7 13:29", "9-22 22:48", "10-8 5:11", "10-23 8:13", "11-7 8:25", "11-22 5:50", "12-7 1:18", "12-21 19:11"],
+    2013: ["1-5 12:33", "1-20 5:51", "2-4 0:13", "2-18 20:01", "3-5 18:14", "3-20 19:01", "4-4 23:02", "4-20 6:03", "5-5 16:18", "5-21 5:09", "6-5 20:23", "6-21 13:03", "7-7 6:34", "7-22 23:55", "8-7 16:20", "8-23 7:01", "9-7 19:16", "9-23 4:44", "10-8 10:58", "10-23 14:09", "11-7 14:13", "11-22 11:48", "12-7 7:08", "12-22 1:11"],
+    2014: ["1-5 18:24", "1-20 11:51", "2-4 6:03", "2-19 1:59", "3-6 0:02", "3-21 0:57", "4-5 4:46", "4-20 11:55", "5-5 21:59", "5-21 10:59", "6-6 2:03", "6-21 18:51", "7-7 12:14", "7-23 5:41", "8-7 22:02", "8-23 12:45", "9-8 1:01", "9-23 10:29", "10-8 16:47", "10-23 19:57", "11-7 20:06", "11-22 17:38", "12-7 13:04", "12-22 7:03"],
+    2015: ["1-6 0:20", "1-20 17:43", "2-4 11:58", "2-19 7:49", "3-6 5:55", "3-21 6:45", "4-5 10:39", "4-20 17:41", "5-6 3:52", "5-21 16:44", "6-6 7:58", "6-22 0:37", "7-7 18:12", "7-23 11:30", "8-8 4:01", "8-23 18:37", "9-8 6:59", "9-23 16:20", "10-8 22:42", "10-24 1:46", "11-8 1:58", "11-22 23:25", "12-7 18:53", "12-22 12:47"],
+    2016: ["1-6 6:08", "1-20 23:27", "2-4 17:46", "2-19 13:33", "3-5 11:43", "3-20 12:30", "4-4 16:27", "4-19 23:29", "5-5 9:41", "5-20 22:36", "6-5 13:48", "6-21 6:34", "7-7 0:03", "7-22 17:30", "8-7 9:53", "8-23 0:38", "9-7 12:51", "9-22 22:21", "10-8 4:33", "10-23 7:45", "11-7 7:47", "11-22 5:22", "12-7 0:41", "12-21 18:44"],
+    2017: ["1-5 11:55", "1-20 5:23", "2-3 23:34", "2-18 19:31", "3-5 17:32", "3-20 18:28", "4-4 22:17", "4-20 5:27", "5-5 15:31", "5-21 4:30", "6-5 19:36", "6-21 12:24", "7-7 5:50", "7-22 23:15", "8-7 15:40", "8-23 6:20", "9-7 18:38", "9-23 4:01", "10-8 10:22", "10-23 13:26", "11-7 13:37", "11-22 11:04", "12-7 6:32", "12-22 0:27"],
+    2018: ["1-5 17:48", "1-20 11:09", "2-4 5:28", "2-19 1:18", "3-5 23:28", "3-21 0:15", "4-5 4:12", "4-20 11:12", "5-5 21:25", "5-21 10:14", "6-6 1:29", "6-21 18:07", "7-7 11:41", "7-23 5:00", "8-7 21:30", "8-23 12:08", "9-8 0:29", "9-23 9:54", "10-8 16:14", "10-23 19:22", "11-7 19:31", "11-22 17:01", "12-7 12:25", "12-22 6:22"],
+    2019: ["1-5 23:38", "1-20 16:59", "2-4 11:14", "2-19 7:03", "3-6 5:09", "3-21 5:58", "4-5 9:51", "4-20 16:55", "5-6 3:02", "5-21 15:59", "6-6 7:06", "6-21 23:54", "7-7 17:20", "7-23 10:50", "8-8 3:13", "8-23 18:01", "9-8 6:16", "9-23 15:50", "10-8 22:05", "10-24 1:19", "11-8 1:24", "11-22 22:58", "12-7 18:18", "12-22 12:19"],
+    2020: ["1-6 5:30", "1-20 22:54", "2-4 17:03", "2-19 12:56", "3-5 10:56", "3-20 11:49", "4-4 15:38", "4-19 22:45", "5-5 8:51", "5-20 21:49", "6-5 12:58", "6-21 5:43", "7-6 23:14", "7-22 16:36", "8-7 9:06", "8-22 23:44", "9-7 12:07", "9-22 21:30", "10-8 3:55", "10-23 6:59", "11-7 7:13", "11-22 4:39", "12-7 0:09", "12-21 18:02"],
+    2021: ["1-5 11:23", "1-20 4:39", "2-3 22:58", "2-18 18:43", "3-5 16:53", "3-20 17:37", "4-4 21:35", "4-20 4:33", "5-5 14:47", "5-21 3:37", "6-5 18:52", "6-21 11:32", "7-7 5:05", "7-22 22:26", "8-7 14:53", "8-23 5:34", "9-7 17:52", "9-23 3:21", "10-8 9:38", "10-23 12:51", "11-7 12:58", "11-22 10:33", "12-7 5:56", "12-21 23:59"],
+    2022: ["1-5 17:13", "1-20 10:39", "2-4 4:50", "2-19 0:42", "3-5 22:43", "3-20 23:33", "4-5 3:20", "4-20 10:24", "5-5 20:25", "5-21 9:22", "6-6 0:25", "6-21 17:13", "7-7 10:37", "7-23 4:06", "8-7 20:29", "8-23 11:16", "9-7 23:32", "9-23 9:03", "10-8 15:22", "10-23 18:35", "11-7 18:45", "11-22 16:20", "12-7 11:46", "12-22 5:48"],
+    2023: ["1-5 23:04", "1-20 16:29", "2-4 10:42", "2-19 6:34", "3-6 4:36", "3-21 5:24", "4-5 9:12", "4-20 16:13", "5-6 2:18", "5-21 15:09", "6-6 6:18", "6-21 22:57", "7-7 16:30", "7-23 9:50", "8-8 2:22", "8-23 17:01", "9-8 5:26", "9-23 14:49", "10-8 21:15", "10-24 0:20", "11-8 0:35", "11-22 22:02", "12-7 17:32", "12-22 11:27"],
+    2024: ["1-6 4:49", "1-20 22:07", "2-4 16:26", "2-19 12:13", "3-5 10:22", "3-20 11:06", "4-4 15:02", "4-19 21:59", "5-5 8:09", "5-20 20:59", "6-5 12:09", "6-21 4:50", "7-6 22:19", "7-22 15:44", "8-7 8:09", "8-22 22:54", "9-7 11:11", "9-22 20:43", "10-8 2:59", "10-23 6:14", "11-7 6:19", "11-22 3:56", "12-6 23:16", "12-21 17:20"],
+    2025: ["1-5 10:32", "1-20 3:59", "2-3 22:10", "2-18 18:06", "3-5 16:07", "3-20 17:01", "4-4 20:48", "4-20 3:55", "5-5 13:57", "5-21 2:54", "6-5 17:56", "6-21 10:42", "7-7 4:04", "7-22 21:29", "8-7 13:51", "8-23 4:33", "9-7 16:51", "9-23 2:19", "10-8 8:40", "10-23 11:50", "11-7 12:03", "11-22 9:35", "12-7 5:04", "12-21 23:02"],
+    2026: ["1-5 16:22", "1-20 9:44", "2-4 4:01", "2-18 23:51", "3-5 21:58", "3-20 22:45", "4-5 2:39", "4-20 9:38", "5-5 19:48", "5-21 8:36", "6-5 23:48", "6-21 16:24", "7-7 9:56", "7-23 3:12", "8-7 19:42", "8-23 10:18", "9-7 22:41", "9-23 8:05", "10-8 14:29", "10-23 17:37", "11-7 17:51", "11-22 15:23", "12-7 10:52", "12-22 4:50"],
+    2027: ["1-5 22:09", "1-20 15:29", "2-4 9:46", "2-19 5:33", "3-6 3:39", "3-21 4:24", "4-5 8:17", "4-20 15:17", "5-6 1:24", "5-21 14:18", "6-6 5:25", "6-21 22:10", "7-7 15:36", "7-23 9:04", "8-8 1:26", "8-23 16:14", "9-8 4:28", "9-23 14:01", "10-8 20:16", "10-23 23:32", "11-7 23:38", "11-22 21:15", "12-7 16:37", "12-22 10:41"],
+    2028: ["1-6 3:54", "1-20 21:21", "2-4 15:30", "2-19 11:25", "3-5 9:24", "3-20 10:16", "4-4 14:02", "4-19 21:09", "5-5 7:11", "5-20 20:09", "6-5 11:15", "6-21 4:01", "7-6 21:30", "7-22 14:53", "8-7 7:20", "8-22 22:00", "9-7 10:21", "9-22 19:45", "10-8 2:08", "10-23 5:13", "11-7 5:26", "11-22 2:54", "12-6 22:24", "12-21 16:19"],
+    2029: ["1-5 9:41", "1-20 3:00", "2-3 21:20", "2-18 17:07", "3-5 15:17", "3-20 16:01", "4-4 19:58", "4-20 2:55", "5-5 13:07", "5-21 1:55", "6-5 17:09", "6-21 9:48", "7-7 3:22", "7-22 20:41", "8-7 13:11", "8-23 3:51", "9-7 16:11", "9-23 1:38", "10-8 7:57", "10-23 11:07", "11-7 11:16", "11-22 8:49", "12-7 4:13", "12-21 22:13"],
+    2030: ["1-5 15:30", "1-20 8:54", "2-4 3:08", "2-18 22:59", "3-5 21:03", "3-20 21:51", "4-5 1:40", "4-20 8:43", "5-5 18:46", "5-21 7:40", "6-5 22:44", "6-21 15:31", "7-7 8:55", "7-23 2:24", "8-7 18:47", "8-23 9:36", "9-7 21:52", "9-23 7:26", "10-8 13:44", "10-23 17:00", "11-7 17:08", "11-22 14:44", "12-7 10:07", "12-22 4:09"],
+    2031: ["1-5 21:22", "1-20 14:47", "2-4 8:57", "2-19 4:50", "3-6 2:50", "3-21 3:40", "4-5 7:28", "4-20 14:30", "5-6 0:34", "5-21 13:27", "6-6 4:35", "6-21 21:16", "7-7 14:48", "7-23 8:10", "8-8 0:42", "8-23 15:22", "9-8 3:49", "9-23 13:14", "10-8 19:42", "10-23 22:49", "11-7 23:05", "11-22 20:32", "12-7 16:02", "12-22 9:55"],
+    2032: ["1-6 3:15", "1-20 20:30", "2-4 14:48", "2-19 10:31", "3-5 8:39", "3-20 9:21", "4-4 13:17", "4-19 20:13", "5-5 6:25", "5-20 19:14", "6-5 10:27", "6-21 3:08", "7-6 20:40", "7-22 14:04", "8-7 6:32", "8-22 21:17", "9-7 9:37", "9-22 19:10", "10-8 1:30", "10-23 4:45", "11-7 4:53", "11-22 2:30", "12-6 21:52", "12-21 15:55"],
+    2033: ["1-5 9:07", "1-20 2:32", "2-3 20:41", "2-18 16:33", "3-5 14:31", "3-20 15:22", "4-4 19:07", "4-20 2:12", "5-5 12:13", "5-21 1:10", "6-5 16:13", "6-21 9:00", "7-7 2:24", "7-22 19:52", "8-7 12:15", "8-23 3:01", "9-7 15:19", "9-23 0:51", "10-8 7:13", "10-23 10:27", "11-7 10:40", "11-22 8:15", "12-7 3:44", "12-21 21:45"],
+    2034: ["1-5 15:04", "1-20 8:26", "2-4 2:40", "2-18 22:29", "3-5 20:31", "3-20 21:17", "4-5 1:05", "4-20 8:03", "5-5 18:08", "5-21 6:56", "6-5 22:06", "6-21 14:43", "7-7 8:17", "7-23 1:35", "8-7 18:08", "8-23 8:47", "9-7 21:13", "9-23 6:39", "10-8 13:06", "10-23 16:16", "11-7 16:33", "11-22 14:04", "12-7 9:36", "12-22 3:33"],
+    2035: ["1-5 20:55", "1-20 14:13", "2-4 8:31", "2-19 4:15", "3-6 2:21", "3-21 3:02", "4-5 6:53", "4-20 13:48", "5-5 23:54", "5-21 12:43", "6-6 3:50", "6-21 20:32", "7-7 14:00", "7-23 7:28", "8-7 23:53", "8-23 14:43", "9-8 3:02", "9-23 12:38", "10-8 18:57", "10-23 22:15", "11-7 22:23", "11-22 20:02", "12-7 15:25", "12-22 9:30"],
+    2036: ["1-6 2:43", "1-20 20:10", "2-4 14:19", "2-19 10:13", "3-5 8:11", "3-20 9:02", "4-4 12:45", "4-19 19:50", "5-5 5:48", "5-20 18:44", "6-5 9:46", "6-21 2:31", "7-6 19:57", "7-22 13:22", "8-7 5:48", "8-22 20:31", "9-7 8:54", "9-22 18:22", "10-8 0:48", "10-23 3:58", "11-7 4:14", "11-22 1:44", "12-6 21:15", "12-21 15:12"],
+    2037: ["1-5 8:33", "1-20 1:53", "2-3 20:11", "2-18 15:58", "3-5 14:05", "3-20 14:49", "4-4 18:43", "4-20 1:39", "5-5 11:48", "5-21 0:34", "6-5 15:46", "6-21 8:21", "7-7 1:54", "7-22 19:12", "8-7 11:42", "8-23 2:21", "9-7 14:45", "9-23 0:12", "10-8 6:37", "10-23 9:49", "11-7 10:03", "11-22 7:37", "12-7 3:06", "12-21 21:07"],
+    2038: ["1-5 14:26", "1-20 7:48", "2-4 2:03", "2-18 21:51", "3-5 19:55", "3-20 20:40", "4-5 0:28", "4-20 7:28", "5-5 17:30", "5-21 6:22", "6-5 21:25", "6-21 14:08", "7-7 7:32", "7-23 0:59", "8-7 17:20", "8-23 8:09", "9-7 20:25", "9-23 6:01", "10-8 12:21", "10-23 15:40", "11-7 15:50", "11-22 13:30", "12-7 8:55", "12-22 3:01"],
+    2039: ["1-5 20:16", "1-20 13:43", "2-4 7:52", "2-19 3:45", "3-6 1:42", "3-21 2:31", "4-5 6:15", "4-20 13:17", "5-5 23:17", "5-21 12:10", "6-6 3:14", "6-21 19:56", "7-7 13:25", "7-23 6:47", "8-7 23:17", "8-23 13:58", "9-8 2:23", "9-23 11:49", "10-8 18:16", "10-23 21:24", "11-7 21:42", "11-22 19:11", "12-7 14:44", "12-22 8:40"],
+    2040: ["1-6 2:03", "1-20 19:20", "2-4 13:39", "2-19 9:23", "3-5 7:30", "3-20 8:11", "4-4 12:04", "4-19 18:59", "5-5 5:08", "5-20 17:55", "6-5 9:07", "6-21 1:45", "7-6 19:18", "7-22 12:40", "8-7 5:09", "8-22 19:52", "9-7 8:13", "9-22 17:44", "10-8 0:04", "10-23 3:19", "11-7 3:28", "11-22 1:04", "12-6 20:29", "12-21 14:32"],
+    2041: ["1-5 7:47", "1-20 1:12", "2-3 19:24", "2-18 15:16", "3-5 13:17", "3-20 14:06", "4-4 17:52", "4-20 0:54", "5-5 10:53", "5-20 23:48", "6-5 14:49", "6-21 7:35", "7-7 0:57", "7-22 18:26", "8-7 10:48", "8-23 1:35", "9-7 13:53", "9-22 23:25", "10-8 5:46", "10-23 9:01", "11-7 9:12", "11-22 6:48", "12-7 2:15", "12-21 20:17"],
+    2042: ["1-5 13:34", "1-20 6:59", "2-4 1:12", "2-18 21:03", "3-5 19:05", "3-20 19:52", "4-4 23:40", "4-20 6:39", "5-5 16:42", "5-21 5:30", "6-5 20:37", "6-21 13:15", "7-7 6:46", "7-23 0:05", "8-7 16:38", "8-23 7:17", "9-7 19:44", "9-23 5:10", "10-8 11:39", "10-23 14:48", "11-7 15:07", "11-22 12:36", "12-7 8:08", "12-22 2:03"],
+    2043: ["1-5 19:24", "1-20 12:40", "2-4 6:58", "2-19 2:41", "3-6 0:47", "3-21 1:27", "4-5 5:19", "4-20 12:13", "5-5 22:21", "5-21 11:08", "6-6 2:17", "6-21 18:57", "7-7 12:27", "7-23 5:52", "8-7 22:20", "8-23 13:09", "9-8 1:29", "9-23 11:06", "10-8 17:27", "10-23 20:46", "11-7 20:55", "11-22 18:34", "12-7 13:56", "12-22 8:00"],
+    2044: ["1-6 1:11", "1-20 18:36", "2-4 12:43", "2-19 8:35", "3-5 6:30", "3-20 7:19", "4-4 11:02", "4-19 18:06", "5-5 4:04", "5-20 17:01", "6-5 8:03", "6-21 0:50", "7-6 18:15", "7-22 11:42", "8-7 4:07", "8-22 18:54", "9-7 7:15", "9-22 16:47", "10-7 23:12", "10-23 2:25", "11-7 2:41", "11-22 0:14", "12-6 19:44", "12-21 13:42"],
+    2045: ["1-5 7:01", "1-20 0:21", "2-3 18:35", "2-18 14:21", "3-5 12:24", "3-20 13:06", "4-4 16:56", "4-19 23:52", "5-5 9:58", "5-20 22:45", "6-5 13:56", "6-21 6:33", "7-7 0:07", "7-22 17:26", "8-7 9:59", "8-23 0:38", "9-7 13:04", "9-22 22:32", "10-8 4:59", "10-23 8:11", "11-7 8:29", "11-22 6:03", "12-7 1:34", "12-21 19:34"],
+    2046: ["1-5 12:55", "1-20 6:15", "2-4 0:30", "2-18 20:14", "3-5 18:17", "3-20 18:57", "4-4 22:44", "4-20 5:38", "5-5 15:40", "5-21 4:27", "6-5 19:31", "6-21 12:13", "7-7 5:39", "7-22 23:08", "8-7 15:32", "8-23 6:23", "9-7 18:42", "9-23 4:21", "10-8 10:41", "10-23 14:02", "11-7 14:13", "11-22 11:55", "12-7 7:20", "12-22 1:27"],
+    2047: ["1-5 18:41", "1-20 12:09", "2-4 6:17", "2-19 2:09", "3-6 0:04", "3-21 0:52", "4-5 4:32", "4-20 11:31", "5-5 21:27", "5-21 10:19", "6-6 1:20", "6-21 18:02", "7-7 11:29", "7-23 4:54", "8-7 21:25", "8-23 12:10", "9-8 0:37", "9-23 10:07", "10-8 16:37", "10-23 19:47", "11-7 20:06", "11-22 17:37", "12-7 13:10", "12-22 7:06"],
+    2048: ["1-6 0:28", "1-20 17:46", "2-4 12:03", "2-19 7:47", "3-5 5:53", "3-20 6:33", "4-4 10:24", "4-19 17:16", "5-5 3:23", "5-20 16:07", "6-5 7:17", "6-20 23:53", "7-6 17:26", "7-22 10:46", "8-7 3:18", "8-22 18:01", "9-7 6:27", "9-22 15:59", "10-7 22:26", "10-23 1:42", "11-7 1:56", "11-21 23:32", "12-6 19:00", "12-21 13:01"],
+    2049: ["1-5 6:18", "1-19 23:40", "2-3 17:52", "2-18 13:41", "3-5 11:42", "3-20 12:27", "4-4 16:13", "4-19 23:12", "5-5 9:11", "5-20 22:03", "6-5 13:03", "6-21 5:46", "7-6 23:08", "7-22 16:35", "8-7 8:57", "8-22 23:46", "9-7 12:04", "9-22 21:41", "10-8 4:04", "10-23 7:24", "11-7 7:37", "11-22 5:18", "12-7 0:45", "12-21 18:51"],
+    2050: ["1-5 12:07", "1-20 5:33", "2-3 23:43", "2-18 19:34", "3-5 17:31", "3-20 18:18", "4-4 22:02", "4-20 5:01", "5-5 15:01", "5-21 3:50", "6-5 18:54", "6-21 11:32", "7-7 5:01", "7-22 22:20", "8-7 14:51", "8-23 5:31", "9-7 17:59", "9-23 3:27", "10-8 9:59", "10-23 13:11", "11-7 13:32", "11-22 11:05", "12-7 6:41", "12-22 0:37"]
+    // <--- 最後一行結尾沒有逗號
+    
+}; // PRECISE_TERM_DATA 物件的結束大括號
+
+
+  // --- 底層工具函式 ---
+  const utils = {
+      creatDate: function creatDate(year, month, day) {
+          return new Date(year, month, day);
+      },
+      getDaysOffset: function getDaysOffset(date, offsetDate) {
+          const utcDate = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+          const utcOffsetDate = Date.UTC(offsetDate.getFullYear(), offsetDate.getMonth(), offsetDate.getDate());
+          return (utcDate - utcOffsetDate) / 86400000;
+      }
+  };
+
+  /**
+   * 獲取節氣的精確 UTC 時間 (getTime() 毫秒數)
+   */
+  function getTerm(year, n) {
+      if (n < 1 || n > 24) { return 0; }
+      const yearTermData = PRECISE_TERM_DATA[year];
+      if (!yearTermData) {
+          console.error("錯誤：找不到年份 " + year + " 的精確節氣資料。");
+          return 0;
+      }
+      const dateInfo = yearTermData[n - 1];
+      const parts = dateInfo.split(' ');
+      const dateParts = parts[0].split('-');
+      const timeParts = parts[1].split(':');
+      const month = parseInt(dateParts[0], 10) - 1;
+      const day = parseInt(dateParts[1], 10);
+      const hour = parseInt(timeParts[0], 10);
+      const minute = parseInt(timeParts[1], 10);
+      return Date.UTC(year, month, day, hour, minute);
+  }
+
+  /**
+   * 核心物件 Lunar
+   */
+  var Lunar = function Lunar(dateObj) {
+      if (typeof dateObj === 'object' && dateObj !== null && dateObj.year) {
+          this.date = new Date(Date.UTC(dateObj.year, dateObj.month - 1, dateObj.day, dateObj.hour || 0, dateObj.minute || 0));
+      } else {
+          this.date = dateObj || new Date();
+      }
+      this.year = this.date.getUTCFullYear();
+      this.month = this.date.getUTCMonth() + 1;
+      this.day = this.date.getUTCDate();
+      this.hour = this.date.getUTCHours();
+  };
+
+  /**
+   * 獲取年份的天干地支
+   */
+  Lunar.prototype.getYearInGanZhi = function () {
+    var year = this.year;
+    var liChunTime = getTerm(year, 3);
+    var solarTime = this.date.getTime(); // 直接使用物件已儲存的 UTC 時間
+
+    if (solarTime < liChunTime) {
+        year = year - 1;
+    }
+    var ganKey = (year - 4) % 10;
+    var zhiKey = (year - 4) % 12;
+    if (ganKey < 0) ganKey += 10;
+    if (zhiKey < 0) zhiKey += 12;
+    return gan[ganKey] + zhi[zhiKey];
+  };
+
+  // ▼▼▼ 新增：專門用來獲取月份地支索引的函式 ▼▼▼
+  Lunar.prototype.getMonthZhiIndex = function () {
+      // 1. 確定當前日期所在的「節氣」是哪一個
+      var termIndex = -1;
+      for (var i = 23; i >= 0; i--) {
+          var termTime = getTerm(this.year, i + 1);
+          if (this.date.getTime() >= termTime) {
+              termIndex = i;
+              break;
+          }
+      }
+      if (termIndex === -1) {
+          var prevYearTermTime = getTerm(this.year - 1, 24);
+          if (this.date.getTime() >= prevYearTermTime) {
+              termIndex = 23;
+          } else {
+              return -1; // 返回無效值
+          }
+      }
+      // 2. 根據節氣計算「月份地支」的索引 (使用查表法)
+      return TERM_ZHI_MAP[termIndex];
+  };
+  
+  /**
+   * 獲取月份的天干地支 (此為主要入口，會自動使用節氣規則)
+   */
+  Lunar.prototype.getMonthInGanZhi = function () {
+    // 1. 取得年柱的天干 (年干以立春為界)
+    var yearGan = this.getYearInGanZhi().charAt(0);
+    // 2. 根據年干，從對照表查出該年「寅月」(正月)的天干
+    var firstMonthStem = monthStemTable[yearGan];
+    var firstMonthStemIndex = gan.indexOf(firstMonthStem);
+    
+    // 3. 呼叫我們的新函式來獲取月份地支索引
+    const monthZhiIndex = this.getMonthZhiIndex();
+    if (monthZhiIndex === -1) { return ''; }
+
+    // 4. 根據「寅月天干」和「月份地支」計算「月份天干」
+    var monthOffset = (monthZhiIndex - 2 + 12) % 12;
+    var monthGanIndex = (firstMonthStemIndex + monthOffset) % 10;
+    return gan[monthGanIndex] + zhi[monthZhiIndex];
+  };
+
+  /**
+   * 獲取日期天干地支
+   */
+  Lunar.prototype.getDayInGanZhi = function () {
+      const referenceDateTimestamp = Date.UTC(1900, 0, 31); // 甲辰日 (0, 4)
+      const offset = (this.date.getTime() - referenceDateTimestamp) / 86400000;
+      const roundedOffset = Math.floor(offset); // <-- 將 Math.round 改為 Math.floor
+      
+      var ganKey = (0 + roundedOffset) % 10;
+      var zhiKey = (4 + roundedOffset) % 12;
+
+      if (ganKey < 0) { ganKey += 10; }
+      if (zhiKey < 0) { zhiKey += 12; }
+      
+      return gan[ganKey] + zhi[zhiKey];
+  };
+
+  /**
+   * 獲取小時天干地支 (已修改為八字排盤規則)
+   */
+  Lunar.prototype.getTimeInGanZhi = function (hour) {
+      if(typeof hour === 'undefined') {
+          hour = this.hour;
+      }
+
+      // 1. 取得日柱的天干
+      var dayGan = this.getDayInGanZhi().charAt(0);
+
+      // 2. 計算小時的地支索引 (0-11)
+      var hourZhiIndex;
+      // 23點-1點 為子時，對應索引 0
+      if (hour >= 23 || hour < 1) {
+          hourZhiIndex = 0;
+      } else {
+          hourZhiIndex = Math.floor((hour + 1) / 2);
+      }
+      
+      // 3. 處理跨日子的夜子時 (23點)
+      // 八字排盤中，23點後的日柱要算成下一天
+      if (hour === 23) {
+          // 取得下一天的 Date 物件
+          var tomorrow = new Date(this.date.getTime() + 24 * 60 * 60 * 1000);
+          // 用下一天的 Date 物件建立一個臨時的 Lunar 物件來計算日干
+          var tomorrowSolar = new Lunar(tomorrow);
+          dayGan = tomorrowSolar.getDayInGanZhi().charAt(0);
+      }
+      
+      // 4. 根據日干，從對照表查出「子時」的天干
+      var firstHourStem = hourStemTable[dayGan];
+      var firstHourStemIndex = gan.indexOf(firstHourStem);
+      
+      // 5. 計算當前時辰的天干索引
+      var hourGanIndex = (firstHourStemIndex + hourZhiIndex) % 10;
+      
+      // 6. 組合時柱
+      return gan[hourGanIndex] + zhi[hourZhiIndex];
+  };
+
+  /**
+   * 獲取生肖
+   */
+  Lunar.prototype.getZodiac = function () {
+      var yearInGanZhi = this.getYearInGanZhi();
+      var yearZhi = yearInGanZhi.charAt(1);
+      var zhiIndex = zhi.indexOf(yearZhi);
+      if (zhiIndex > -1) { return zodiac[zhiIndex]; }
+      return ''; 
+  };
+  
+  /**
+   * 獲取當前日期之前，最近的一個節氣
+   */
+  Lunar.prototype.getLastTerm = function() {
+      for (var i = 23; i >= 0; i--) {
+          var termTime = getTerm(this.year, i + 1);
+          if (this.date.getTime() >= termTime) {
+              return term[i];
+          }
+      }
+      // 如果找不到，檢查是否在前一年的冬至之後
+      var prevYearTermTime = getTerm(this.year - 1, 24);
+      if (this.date.getTime() >= prevYearTermTime) {
+          return term[23];
+      }
+      return '';
+  };
+
+  // 最終向外暴露的 API
+  var staticApi = {
+      solar2lunar: function solar2lunar(year, month, day, hour, minute) {
+          return new Lunar({
+              year: year,
+              month: month,
+              day: day,
+              hour: hour,
+              minute: minute
+          });
+      },
+      // ▼▼▼ 新增這兩行 ▼▼▼
+      getTerm: getTerm, // 將內部的 getTerm 函式公開
+      zhi: zhi          // 將內部的 zhi 陣列公開
+  };
+  
+  for (var key in staticApi) {
+      Lunar[key] = staticApi[key];
+  }
+
+  return Lunar;
+
+})));
+</script>
+<script>
+/* ===== inlined: ziwei-engine.js ===== */
+/* =============================================================================
+ * 紫微斗數 安星引擎  ziwei-engine.js
+ * 小六太乙 · 紫微斗數盤工具
+ *
+ * 設計原則：
+ *   1. 純函式、零外部相依，可在瀏覽器或 node 直接執行。
+ *   2. 國曆 → 農曆（年月日 + 閏月）採內建 lunarInfo(1900-2100) 對照表，
+ *      與隔壁 bazi-tool 的 solar-lunar.js 用途互補：
+ *        - solar-lunar.js 以「節氣」定月、計四柱干支（八字用）；
+ *        - 本引擎以「正月初一」定農曆年、需要真正的農曆「月數 / 日數 / 閏月」，
+ *          這是紫微定命宮、起紫微所必需，solar-lunar.js 並未提供，故另建。
+ *   3. 安星法以「中州派 / 三合派」通行安法為主，凡有流派分歧者於 NOTES 標註，
+ *      畫面上也會提示，方便核對。
+ *
+ * 已用 Nakai 命例（國曆1976/10/14 亥時，陽女）驗證：
+ *   閏八月21日 → 命宮己亥、木三局、命主巨門、身主文昌、身宮在酉(夫妻宮)。
+ * ============================================================================= */
+(function (global, factory) {
+  typeof module !== 'undefined' && module.exports ? (module.exports = factory())
+    : (global.ziweiEngine = factory());
+}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  // ---- 基礎常數 ---------------------------------------------------------------
+  const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+  const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  const ZODIAC = ['鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊', '猴', '雞', '狗', '豬'];
+  const HOUR_LABEL = ['子(23-01)', '丑(01-03)', '寅(03-05)', '卯(05-07)', '辰(07-09)',
+    '巳(09-11)', '午(11-13)', '未(13-15)', '申(15-17)', '酉(17-19)', '戌(19-21)', '亥(21-23)'];
+  const PALACE_NAMES = ['命宮', '兄弟', '夫妻', '子女', '財帛', '疾厄',
+    '遷移', '交友', '官祿', '田宅', '福德', '父母'];
+
+  const NOTES = []; // 收集本次排盤採用的流派說明，回傳給 UI 顯示
+
+  // ---- 農曆對照表 lunarInfo 1900-2100 ----------------------------------------
+  // 每年一個 hex：bit16=閏月大小(1=30天)，bit15..4 為 1~12 月大小(1=30天)，bit3..0 = 閏月月份(0=無閏月)
+  // 來源為通行的 solarlunar / calendar.js 對照表，已對 1976=0x0d558(閏8月) 等抽驗。
+  const lunarInfo = [
+    0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2, // 1900-1909
+    0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d255, 0x0b540, 0x0d6a0, 0x0ada2, 0x095b0, 0x14977, // 1910-1919
+    0x04970, 0x0a4b0, 0x0b4b5, 0x06a50, 0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970, // 1920-1929
+    0x06566, 0x0d4a0, 0x0ea50, 0x06e95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950, // 1930-1939
+    0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2, 0x0a950, 0x0b557, // 1940-1949
+    0x06ca0, 0x0b550, 0x15355, 0x04da0, 0x0a5b0, 0x14573, 0x052b0, 0x0a9a8, 0x0e950, 0x06aa0, // 1950-1959
+    0x0aea6, 0x0ab50, 0x04b60, 0x0aae4, 0x0a570, 0x05260, 0x0f263, 0x0d950, 0x05b57, 0x056a0, // 1960-1969
+    0x096d0, 0x04dd5, 0x04ad0, 0x0a4d0, 0x0d4d4, 0x0d250, 0x0d558, 0x0b540, 0x0b6a0, 0x195a6, // 1970-1979
+    0x095b0, 0x049b0, 0x0a974, 0x0a4b0, 0x0b27a, 0x06a50, 0x06d40, 0x0af46, 0x0ab60, 0x09570, // 1980-1989
+    0x04af5, 0x04970, 0x064b0, 0x074a3, 0x0ea50, 0x06b58, 0x055c0, 0x0ab60, 0x096d5, 0x092e0, // 1990-1999
+    0x0c960, 0x0d954, 0x0d4a0, 0x0da50, 0x07552, 0x056a0, 0x0abb7, 0x025d0, 0x092d0, 0x0cab5, // 2000-2009
+    0x0a950, 0x0b4a0, 0x0baa4, 0x0ad50, 0x055d9, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930, // 2010-2019
+    0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260, 0x0ea65, 0x0d530, // 2020-2029
+    0x05aa0, 0x076a3, 0x096d0, 0x04afb, 0x04ad0, 0x0a4d0, 0x1d0b6, 0x0d250, 0x0d520, 0x0dd45, // 2030-2039
+    0x0b5a0, 0x056d0, 0x055b2, 0x049b0, 0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0, // 2040-2049
+    0x14b63, 0x09370, 0x049f8, 0x04970, 0x064b0, 0x168a6, 0x0ea50, 0x06b20, 0x1a6c4, 0x0aae0, // 2050-2059
+    0x0a2e0, 0x0d2e3, 0x0c960, 0x0d557, 0x0d4a0, 0x0da50, 0x05d55, 0x056a0, 0x0a6d0, 0x055d4, // 2060-2069
+    0x052d0, 0x0a9b8, 0x0a950, 0x0b4a0, 0x0b6a6, 0x0ad50, 0x055a0, 0x0aba4, 0x0a5b0, 0x052b0, // 2070-2079
+    0x0b273, 0x06930, 0x07337, 0x06aa0, 0x0ad50, 0x14b55, 0x04b60, 0x0a570, 0x054e4, 0x0d160, // 2080-2089
+    0x0e968, 0x0d520, 0x0daa0, 0x16aa6, 0x056d0, 0x04ae0, 0x0a9d4, 0x0a2d0, 0x0d150, 0x0f252, // 2090-2099
+    0x0d520 // 2100
+  ];
+
+  function leapMonth(y) { return lunarInfo[y - 1900] & 0xf; }
+  function leapDays(y) {
+    if (leapMonth(y)) return (lunarInfo[y - 1900] & 0x10000) ? 30 : 29;
+    return 0;
+  }
+  function monthDays(y, m) { return (lunarInfo[y - 1900] & (0x10000 >> m)) ? 30 : 29; }
+  function yearDays(y) {
+    let sum = 348; // 12*29
+    for (let i = 0x8000; i > 0x8; i >>= 1) sum += (lunarInfo[y - 1900] & i) ? 1 : 0;
+    return sum + leapDays(y);
+  }
+
+  // 國曆(西元) → 農曆 ：回傳 { lYear, lMonth, lDay, isLeap }
+  function solarToLunar(y, m, d) {
+    const baseUTC = Date.UTC(1900, 0, 31); // 農曆 1900-01-01 = 西元 1900-01-31
+    let offset = Math.floor((Date.UTC(y, m - 1, d) - baseUTC) / 86400000);
+    let ly = 1900, temp = 0;
+    for (; ly < 2101 && offset > 0; ly++) {
+      temp = yearDays(ly);
+      offset -= temp;
+    }
+    if (offset < 0) { offset += temp; ly--; }
+    const leap = leapMonth(ly);
+    let isLeap = false, lm = 1;
+    for (; lm < 13 && offset > 0; lm++) {
+      if (leap > 0 && lm === leap + 1 && !isLeap) {
+        lm--; isLeap = true; temp = leapDays(ly);
+      } else {
+        temp = monthDays(ly, lm);
+      }
+      if (isLeap && lm === leap + 1) isLeap = false;
+      offset -= temp;
+    }
+    if (offset === 0 && leap > 0 && lm === leap + 1) {
+      if (isLeap) isLeap = false; else { isLeap = true; lm--; }
+    }
+    if (offset < 0) { offset += temp; lm--; }
+    return { lYear: ly, lMonth: lm, lDay: offset + 1, isLeap: isLeap };
+  }
+
+  function yearGanZhi(lYear) {
+    let g = (lYear - 4) % 10, z = (lYear - 4) % 12;
+    if (g < 0) g += 10; if (z < 0) z += 12;
+    return { ganIndex: g, zhiIndex: z, text: GAN[g] + ZHI[z] };
+  }
+
+  // 農曆 → 國曆（給「本月能量」逐日取國曆日期算日柱用）
+  function lunarToSolar(lY, lM, lD, isLeap) {
+    let off = 0;
+    for (let y = 1900; y < lY; y++) off += yearDays(y);
+    const leap = leapMonth(lY);
+    if (isLeap && leap === lM) {
+      for (let m = 1; m <= lM; m++) off += monthDays(lY, m);
+    } else {
+      for (let m = 1; m < lM; m++) off += monthDays(lY, m);
+      if (leap > 0 && leap < lM) off += leapDays(lY);
+    }
+    off += (lD - 1);
+    const dt = new Date(Date.UTC(1900, 0, 31) + off * 86400000);
+    return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate() };
+  }
+  function lunarMonthLen(lY, lM, isLeap) { return (isLeap && leapMonth(lY) === lM) ? leapDays(lY) : monthDays(lY, lM); }
+  function leapMonthOf(lY) { return leapMonth(lY); }
+
+  // ---- 安星規則資料 -----------------------------------------------------------
+  // 五虎遁：年干 → 寅宮天干索引
+  const YIN_GAN = { 0: 2, 5: 2, 1: 4, 6: 4, 2: 6, 7: 6, 3: 8, 8: 8, 4: 0, 9: 0 };
+
+  // 60甲子納音五行 → 局數（水2 木3 金4 土5 火6）。索引 = (年干*? )，這裡用干支文字查表。
+  const NAYIN_JU = (function () {
+    const pairs = [
+      ['甲子', '乙丑', 4], ['丙寅', '丁卯', 6], ['戊辰', '己巳', 3], ['庚午', '辛未', 5], ['壬申', '癸酉', 4],
+      ['甲戌', '乙亥', 6], ['丙子', '丁丑', 2], ['戊寅', '己卯', 5], ['庚辰', '辛巳', 4], ['壬午', '癸未', 3],
+      ['甲申', '乙酉', 2], ['丙戌', '丁亥', 5], ['戊子', '己丑', 6], ['庚寅', '辛卯', 3], ['壬辰', '癸巳', 2],
+      ['甲午', '乙未', 4], ['丙申', '丁酉', 6], ['戊戌', '己亥', 3], ['庚子', '辛丑', 5], ['壬寅', '癸卯', 4],
+      ['甲辰', '乙巳', 6], ['丙午', '丁未', 2], ['戊申', '己酉', 5], ['庚戌', '辛亥', 4], ['壬子', '癸丑', 3],
+      ['甲寅', '乙卯', 2], ['丙辰', '丁巳', 5], ['戊午', '己未', 6], ['庚申', '辛酉', 3], ['壬戌', '癸亥', 2]
+    ];
+    const map = {};
+    pairs.forEach(([a, b, ju]) => { map[a] = ju; map[b] = ju; });
+    return map;
+  })();
+  const JU_NAME = { 2: '水二局', 3: '木三局', 4: '金四局', 5: '土五局', 6: '火六局' };
+
+  // 命主（依命宮地支）
+  const MING_ZHU = ['貪狼', '巨門', '祿存', '文曲', '廉貞', '武曲', '破軍', '武曲', '廉貞', '文曲', '祿存', '巨門'];
+  // 身主（依生年地支）
+  const SHEN_ZHU = ['鈴星', '天相', '天梁', '天同', '文昌', '天機', '火星', '天相', '天梁', '天同', '文昌', '天機'];
+
+  // 祿存（年干）
+  const LU_CUN = { 0: 2, 1: 3, 2: 5, 3: 6, 4: 5, 5: 6, 6: 8, 7: 9, 8: 11, 9: 0 };
+  // 天魁、天鉞（年干）
+  const KUI_YUE = {
+    0: [1, 7], 4: [1, 7], 6: [1, 7],    // 甲戊庚：魁丑 鉞未
+    1: [0, 8], 5: [0, 8],               // 乙己：魁子 鉞申
+    2: [11, 9], 3: [11, 9],             // 丙丁：魁亥 鉞酉
+    7: [6, 2],                          // 辛：魁午 鉞寅
+    8: [3, 5], 9: [3, 5]                // 壬癸：魁卯 鉞巳
+  };
+  // 生年四化（年干 → {星:化}），採中州派通行表（庚干化科取太陰，標註待核）
+  const SI_HUA = {
+    0: { 廉貞: '祿', 破軍: '權', 武曲: '科', 太陽: '忌' },
+    1: { 天機: '祿', 天梁: '權', 紫微: '科', 太陰: '忌' },
+    2: { 天同: '祿', 天機: '權', 文昌: '科', 廉貞: '忌' },
+    3: { 太陰: '祿', 天同: '權', 天機: '科', 巨門: '忌' },
+    4: { 貪狼: '祿', 太陰: '權', 右弼: '科', 天機: '忌' },
+    5: { 武曲: '祿', 貪狼: '權', 天梁: '科', 文曲: '忌' },
+    6: { 太陽: '祿', 武曲: '權', 太陰: '科', 天同: '忌' },
+    7: { 巨門: '祿', 太陽: '權', 文曲: '科', 文昌: '忌' },
+    8: { 天梁: '祿', 紫微: '權', 左輔: '科', 武曲: '忌' },
+    9: { 破軍: '祿', 巨門: '權', 太陰: '科', 貪狼: '忌' }
+  };
+  function siHuaByGan(g) { return SI_HUA[g] || {}; }
+  function huaTextOf(g) { const m = SI_HUA[g] || {}; return Object.keys(m).map(k => k + m[k]).join('　'); }
+
+  // 火星 / 鈴星 起例（年支三合 → 起宮），再順數至生時。中州派通行。
+  const HUO_LING_START = {
+    寅: [1, 3], 午: [1, 3], 戌: [1, 3],   // 寅午戌：火起丑 鈴起卯
+    申: [2, 10], 子: [2, 10], 辰: [2, 10], // 申子辰：火起寅 鈴起戌
+    巳: [3, 10], 酉: [3, 10], 丑: [3, 10], // 巳酉丑：火起卯 鈴起戌
+    亥: [9, 10], 卯: [9, 10], 未: [9, 10]  // 亥卯未：火起酉 鈴起戌
+  };
+  // 天馬（年支三合，馬在四生地）
+  const TIAN_MA = { 申: 2, 子: 2, 辰: 2, 寅: 8, 午: 8, 戌: 8, 巳: 11, 酉: 11, 丑: 11, 亥: 5, 卯: 5, 未: 5 };
+  // 華蓋 / 咸池（年支三合）
+  const HUA_GAI = { 寅: 10, 午: 10, 戌: 10, 申: 4, 子: 4, 辰: 4, 巳: 1, 酉: 1, 丑: 1, 亥: 7, 卯: 7, 未: 7 };
+  const XIAN_CHI = { 寅: 3, 午: 3, 戌: 3, 申: 9, 子: 9, 辰: 9, 巳: 6, 酉: 6, 丑: 6, 亥: 0, 卯: 0, 未: 0 };
+  // 孤辰寡宿（年支四方）
+  const GU_GUA = {
+    寅: [5, 1], 卯: [5, 1], 辰: [5, 1],   // 寅卯辰：孤巳 寡丑
+    巳: [8, 4], 午: [8, 4], 未: [8, 4],   // 巳午未：孤申 寡辰
+    申: [11, 7], 酉: [11, 7], 戌: [11, 7], // 申酉戌：孤亥 寡未
+    亥: [2, 10], 子: [2, 10], 丑: [2, 10]  // 亥子丑：孤寅 寡戌
+  };
+  // 破碎（年支）
+  const PO_SUI = { 子: 5, 午: 5, 卯: 5, 酉: 5, 寅: 9, 申: 9, 巳: 9, 亥: 9, 辰: 1, 戌: 1, 丑: 1, 未: 1 };
+
+  // 流年文昌 / 文曲（依流年天干，與本命時系昌曲安法不同）
+  const LIU_CHANG = { 0: 5, 1: 6, 2: 8, 3: 9, 4: 8, 5: 9, 6: 11, 7: 0, 8: 2, 9: 3 }; // 甲巳乙午丙申丁酉戊申己酉庚亥辛子壬寅癸卯
+  const LIU_QU = { 0: 9, 1: 8, 2: 6, 3: 5, 4: 6, 5: 5, 6: 3, 7: 2, 8: 0, 9: 11 };     // 甲酉乙申丙午丁巳戊午己巳庚卯辛寅壬子癸亥
+  // 流年盤：以西元/農曆年取干支，安流年命宮、流年四化、流曜
+  function liuNian(year) {
+    const g = ((year - 4) % 10 + 10) % 10, z = ((year - 4) % 12 + 12) % 12;
+    const lu = LU_CUN[g], luan = ((3 - z) % 12 + 12) % 12;
+    const stars = [
+      { name: '流祿', zhi: lu }, { name: '流羊', zhi: (lu + 1) % 12 }, { name: '流陀', zhi: (lu + 11) % 12 },
+      { name: '流魁', zhi: KUI_YUE[g][0] }, { name: '流鉞', zhi: KUI_YUE[g][1] },
+      { name: '流昌', zhi: LIU_CHANG[g] }, { name: '流曲', zhi: LIU_QU[g] },
+      { name: '流馬', zhi: TIAN_MA[ZHI[z]] },
+      { name: '流鸞', zhi: luan }, { name: '流喜', zhi: (luan + 6) % 12 }
+    ];
+    return {
+      gan: g, zhi: z, ganChar: GAN[g], zhiChar: ZHI[z], ganZhi: GAN[g] + ZHI[z],
+      mingZhi: z, hua: siHuaByGan(g), huaText: huaTextOf(g), stars: stars
+    };
+  }
+
+  // ---- 14主星 廟旺利陷亮度表（子..亥）-----------------------------------------
+  // 採通行版本（紫微斗數全書系統），流派略有出入，畫面標註「亮度僅供核對」。
+  // 等級：廟 旺 得 利 平 不 陷
+  const BRIGHTNESS = {
+    紫微: ['平', '廟', '廟', '旺', '陷', '旺', '廟', '廟', '旺', '平', '陷', '旺'],
+    天機: ['廟', '陷', '得', '旺', '利', '平', '廟', '陷', '得', '旺', '利', '平'],
+    太陽: ['陷', '陷', '旺', '廟', '旺', '旺', '廟', '得', '得', '平', '不', '陷'],
+    武曲: ['旺', '廟', '得', '利', '廟', '平', '旺', '廟', '得', '利', '廟', '平'],
+    天同: ['旺', '不', '利', '廟', '平', '廟', '陷', '不', '旺', '平', '平', '廟'],
+    廉貞: ['平', '利', '廟', '平', '利', '陷', '平', '利', '廟', '平', '利', '陷'],
+    天府: ['廟', '廟', '廟', '得', '廟', '得', '旺', '廟', '得', '陷', '廟', '得'],
+    太陰: ['廟', '廟', '陷', '陷', '陷', '陷', '不', '不', '利', '旺', '廟', '廟'],
+    貪狼: ['旺', '廟', '平', '利', '廟', '陷', '旺', '廟', '平', '利', '廟', '陷'],
+    巨門: ['旺', '陷', '廟', '廟', '平', '旺', '旺', '陷', '廟', '廟', '平', '旺'],
+    天相: ['廟', '廟', '廟', '陷', '得', '得', '廟', '廟', '廟', '陷', '得', '得'],
+    天梁: ['廟', '旺', '廟', '廟', '旺', '陷', '廟', '旺', '陷', '地', '旺', '陷'],
+    七殺: ['旺', '廟', '廟', '陷', '廟', '平', '旺', '廟', '廟', '陷', '廟', '平'],
+    破軍: ['廟', '旺', '得', '陷', '旺', '平', '廟', '旺', '得', '陷', '旺', '平']
+  };
+
+  function brightnessOf(star, zhiIndex) {
+    const row = BRIGHTNESS[star];
+    return row ? row[zhiIndex] : '';
+  }
+
+  // ---- 主流程 -----------------------------------------------------------------
+  /**
+   * @param {Object} o
+   *   o.solarYear, o.solarMonth, o.solarDay  國曆生日
+   *   o.hourBranch  時辰地支索引 0(子)..11(亥)
+   *   o.gender      'M' | 'F'
+   *   o.leapRule    閏月取月規則：'split15'(預設,過十五作下月) | 'thisMonth' | 'nextMonth'
+   */
+  function computeChart(o) {
+    NOTES.length = 0;
+    const hb = o.hourBranch;
+    const gender = o.gender;
+    const lunar = solarToLunar(o.solarYear, o.solarMonth, o.solarDay);
+
+    // 紫微以「正月初一」分年，年干支用農曆年計算
+    const yGZ = yearGanZhi(lunar.lYear);
+    const yearGan = yGZ.ganIndex, yearZhi = yGZ.zhiIndex;
+    const yangYearGan = yearGan % 2 === 0; // 陽干
+
+    // 閏月取月：決定「定命宮/起紫微/月系星」所用的月數
+    let monthForChart = lunar.lMonth;
+    let leapNote = '';
+    if (lunar.isLeap) {
+      const rule = o.leapRule || 'split15';
+      if (rule === 'thisMonth') {
+        monthForChart = lunar.lMonth;
+        leapNote = `生於閏${lunar.lMonth}月，採「一律作本月論」。`;
+      } else if (rule === 'nextMonth') {
+        monthForChart = lunar.lMonth + 1;
+        leapNote = `生於閏${lunar.lMonth}月，採「一律作下月論」。`;
+      } else {
+        monthForChart = lunar.lDay > 15 ? lunar.lMonth + 1 : lunar.lMonth;
+        leapNote = `生於閏${lunar.lMonth}月${lunar.lDay}日，採中州派「過十五作下月、十五前作本月」，本盤以「${monthForChart}月」起例。`;
+      }
+      if (monthForChart > 12) monthForChart = 12;
+      NOTES.push('【閏月】' + leapNote);
+    }
+
+    // --- 定命宮 / 身宮 ---
+    const monthCell = (2 + (monthForChart - 1)) % 12;            // 寅起正月順數
+    const mingGong = ((monthCell - hb) % 12 + 12) % 12;          // 命宮：子時起該宮逆數至生時
+    const shenGong = (monthCell + hb) % 12;                      // 身宮：順數至生時
+
+    // --- 十二宮地支位置（命宮起，逆佈）---
+    const palaceZhi = [];   // palaceZhi[k] = 第k宮(命=0)所在地支索引
+    for (let k = 0; k < 12; k++) palaceZhi[k] = ((mingGong - k) % 12 + 12) % 12;
+
+    // --- 各宮天干（五虎遁）---
+    const yinGan = YIN_GAN[yearGan];
+    function ganOfZhi(zi) { return (yinGan + ((zi - 2) % 12 + 12) % 12) % 10; }
+    const zhiGan = [];      // zhiGan[zhiIndex] = 天干索引
+    for (let z = 0; z < 12; z++) zhiGan[z] = ganOfZhi(z);
+
+    // --- 五行局（命宮納音）---
+    const mingGanZhiText = GAN[zhiGan[mingGong]] + ZHI[mingGong];
+    const ju = NAYIN_JU[mingGanZhiText];
+
+    // --- 安紫微（除日定局法）---
+    function findZiWei(day, ju) {
+      const offset = day % ju;
+      let step, reminder;
+      if (offset === 0) { step = day / ju; reminder = 0; }
+      else { step = Math.floor(day / ju) + 1; reminder = ju - offset; }
+      let base = (2 + (step - 1)) % 12;                 // 寅為第1步順數
+      if (reminder % 2 === 0) base = (base + reminder) % 12;        // 餘偶數順行
+      else base = ((base - reminder) % 12 + 12) % 12;              // 餘奇數逆行
+      return base;
+    }
+    const ziWei = findZiWei(lunar.lDay, ju);
+    const tianFu = ((4 - ziWei) % 12 + 12) % 12;
+
+    // --- 安星：星 → 地支索引 ---
+    const stars = {}; // 名稱 -> { zhi, type }
+    function put(name, zhi, type) { stars[name] = { zhi: ((zhi % 12) + 12) % 12, type: type }; }
+
+    // 紫微星系（逆佈）
+    put('紫微', ziWei, '主');
+    put('天機', ziWei - 1, '主');
+    put('太陽', ziWei - 3, '主');
+    put('武曲', ziWei - 4, '主');
+    put('天同', ziWei - 5, '主');
+    put('廉貞', ziWei - 8, '主');
+    // 天府星系（順佈）
+    put('天府', tianFu, '主');
+    put('太陰', tianFu + 1, '主');
+    put('貪狼', tianFu + 2, '主');
+    put('巨門', tianFu + 3, '主');
+    put('天相', tianFu + 4, '主');
+    put('天梁', tianFu + 5, '主');
+    put('七殺', tianFu + 6, '主');
+    put('破軍', tianFu + 10, '主');
+
+    // 月系星（用 monthForChart）：左輔右弼、天刑天姚
+    const zuoFuPos = (4 + monthForChart - 1) % 12;             // 左輔：辰起正月順數
+    const youBiPos = ((10 - (monthForChart - 1)) % 12 + 12) % 12; // 右弼：戌起正月逆數
+    put('左輔', zuoFuPos, '輔');
+    put('右弼', youBiPos, '輔');
+    // 三台八座（用生日）：三台由左輔起初一順數、八座由右弼起初一逆數至生日
+    put('三台', ((zuoFuPos + (lunar.lDay - 1)) % 12 + 12) % 12, '雜');
+    put('八座', ((youBiPos - (lunar.lDay - 1)) % 12 + 12) % 12, '雜');
+    put('天刑', (9 + monthForChart - 1) % 12, '雜');   // 酉起正月順數
+    put('天姚', (1 + monthForChart - 1) % 12, '雜');   // 丑起正月順數
+
+    // 時系星：文昌文曲、地空地劫、台輔封誥
+    put('文昌', ((10 - hb) % 12 + 12) % 12, '輔');     // 戌起子時逆數
+    put('文曲', (4 + hb) % 12, '輔');                  // 辰起子時順數
+    put('地劫', (11 + hb) % 12, '煞');                 // 亥起子時順數
+    put('地空', ((11 - hb) % 12 + 12) % 12, '煞');     // 亥起子時逆數
+    put('台輔', (6 + hb) % 12, '雜');                  // 午起子時順數
+    put('封誥', (2 + hb) % 12, '雜');                  // 寅起子時順數
+
+    // 年干系：祿存、擎羊、陀羅、天魁、天鉞
+    const lc = LU_CUN[yearGan];
+    put('祿存', lc, '輔');
+    put('擎羊', (lc + 1) % 12, '煞');
+    put('陀羅', ((lc - 1) % 12 + 12) % 12, '煞');
+    put('天魁', KUI_YUE[yearGan][0], '輔');
+    put('天鉞', KUI_YUE[yearGan][1], '輔');
+
+    // 年支系：火星、鈴星（起例 + 順數至生時）、天馬、紅鸞天喜、天哭天虛、龍池鳳閣、孤辰寡宿、華蓋咸池破碎
+    const zhiChar = ZHI[yearZhi];
+    const hl = HUO_LING_START[zhiChar];
+    put('火星', (hl[0] + hb) % 12, '煞');
+    put('鈴星', (hl[1] + hb) % 12, '煞');
+    put('天馬', TIAN_MA[zhiChar], '雜');
+    const hongLuan = ((3 - yearZhi) % 12 + 12) % 12; // 卯起子年逆數
+    put('紅鸞', hongLuan, '雜');
+    put('天喜', (hongLuan + 6) % 12, '雜');
+    put('天哭', ((6 - yearZhi) % 12 + 12) % 12, '雜'); // 午起逆數
+    put('天虛', (6 + yearZhi) % 12, '雜');             // 午起順數
+    put('龍池', (4 + yearZhi) % 12, '雜');             // 辰起順數
+    put('鳳閣', ((10 - yearZhi) % 12 + 12) % 12, '雜'); // 戌起逆數
+    put('孤辰', GU_GUA[zhiChar][0], '雜');
+    put('寡宿', GU_GUA[zhiChar][1], '雜');
+    put('華蓋', HUA_GAI[zhiChar], '雜');
+    put('咸池', XIAN_CHI[zhiChar], '雜');
+    put('破碎', PO_SUI[zhiChar], '雜');
+
+    NOTES.push('【火鈴】採中州派三合局起例，全書派鈴星起法略異，請核對。');
+    NOTES.push('【亮度】14主星廟旺利陷採通行表，僅供參考核對。');
+    NOTES.push('【四化】生年／大限／小限四化共用同一張十干四化表，採中州派通行版（庚干化科取太陰、壬干化科取左輔），庚壬兩干各家略異，請核對。');
+
+    // --- 生年四化標記 ---
+    const huaMap = SI_HUA[yearGan]; // {星:化}
+
+    // --- 大限 ---
+    // 起運歲 = 局數；陽男陰女順行、陰男陽女逆行
+    const forward = (yangYearGan && gender === 'M') || (!yangYearGan && gender === 'F');
+    NOTES.push(`【大限】${yangYearGan ? '陽' : '陰'}年生${gender === 'M' ? '男' : '女'}，大限${forward ? '順' : '逆'}行，${ju}歲起運。`);
+    const daXian = {}; // zhiIndex -> {start,end}
+    for (let k = 0; k < 12; k++) {
+      const zi = forward ? (mingGong + k) % 12 : ((mingGong - k) % 12 + 12) % 12;
+      const start = ju + k * 10;
+      daXian[zi] = { start: start, end: start + 9 };
+    }
+
+    // --- 小限（一歲起宮，年支三合）---
+    const XIAO_START = { 寅: 4, 午: 4, 戌: 4, 申: 10, 子: 10, 辰: 10, 巳: 7, 酉: 7, 丑: 7, 亥: 1, 卯: 1, 未: 1 };
+    const xiaoStart = XIAO_START[zhiChar];
+
+    // --- 組裝 12 宮資料 ---
+    const palaces = []; // 以地支索引 0..11 為 key 的陣列
+    for (let z = 0; z < 12; z++) palaces[z] = {
+      zhiIndex: z, zhi: ZHI[z], gan: GAN[zhiGan[z]], ganIndex: zhiGan[z], ganZhi: GAN[zhiGan[z]] + ZHI[z],
+      stars: [], palaceName: '', isMing: false, isShen: false,
+      daXian: daXian[z] || null
+    };
+    // 宮名 / 身宮
+    for (let k = 0; k < 12; k++) {
+      const z = palaceZhi[k];
+      palaces[z].palaceName = PALACE_NAMES[k];
+      palaces[z].palaceIndex = k;
+    }
+    palaces[mingGong].isMing = true;
+    palaces[shenGong].isShen = true;
+
+    // --- 大限清單（含宮干、四化），供「大限盤」切換 ---
+    const daList = [];
+    for (let z = 0; z < 12; z++) {
+      if (!daXian[z]) continue;
+      daList.push({
+        zhiIndex: z, zhi: ZHI[z], ganIndex: zhiGan[z], gan: GAN[zhiGan[z]],
+        ganZhi: GAN[zhiGan[z]] + ZHI[z], palaceName: palaces[z].palaceName,
+        start: daXian[z].start, end: daXian[z].end,
+        hua: siHuaByGan(zhiGan[z]), huaText: huaTextOf(zhiGan[z])
+      });
+    }
+    daList.sort((a, b) => a.start - b.start);
+    NOTES.push('【小限】一歲起宮採年支三合（申子辰起戌…），行度「男順女逆」，與大限的陰陽順逆判法不同。');
+
+    // 派星進宮（含亮度、四化）
+    const ORDER = { 主: 0, 輔: 1, 煞: 2, 雜: 3 };
+    Object.keys(stars).forEach(name => {
+      const s = stars[name];
+      palaces[s.zhi].stars.push({
+        name: name, type: s.type,
+        brightness: s.type === '主' ? brightnessOf(name, s.zhi) : '',
+        hua: huaMap[name] || ''
+      });
+    });
+    palaces.forEach(p => p.stars.sort((a, b) => (ORDER[a.type] - ORDER[b.type])));
+
+    return {
+      input: o,
+      lunar: lunar,
+      lunarText: `${yGZ.text}年（${lunar.lYear}）${lunar.isLeap ? '閏' : ''}${lunar.lMonth}月${lunar.lDay}日 ${ZHI[hb]}時`,
+      yearGanZhi: yGZ.text,
+      zodiac: ZODIAC[yearZhi],
+      monthForChart: monthForChart,
+      mingGong: mingGong, shenGong: shenGong,
+      mingGanZhi: mingGanZhiText,
+      ju: ju, juName: JU_NAME[ju],
+      mingZhu: MING_ZHU[mingGong],
+      shenZhu: SHEN_ZHU[yearZhi],
+      yinYang: yangYearGan ? '陽' : '陰',
+      genderText: gender === 'M' ? '男' : '女',
+      yinYangGender: (yangYearGan ? '陽' : '陰') + (gender === 'M' ? '男' : '女'),
+      forward: forward,
+      ziWei: ZHI[ziWei], tianFu: ZHI[tianFu],
+      huaMap: huaMap,
+      daList: daList,
+      xiaoStart: xiaoStart,
+      xiaoForward: gender === 'M', // 小限男順女逆
+      lunarBirthYear: lunar.lYear,
+      zhiGanIndex: zhiGan.slice(), // 各地支宮干索引
+      palaces: palaces,
+      palaceZhi: palaceZhi,
+      notes: NOTES.slice()
+    };
+  }
+
+  return {
+    computeChart: computeChart,
+    solarToLunar: solarToLunar, lunarToSolar: lunarToSolar, lunarMonthLen: lunarMonthLen, leapMonthOf: leapMonthOf,
+    siHuaByGan: siHuaByGan, huaTextOf: huaTextOf, liuNian: liuNian,
+    GAN: GAN, ZHI: ZHI, ZODIAC: ZODIAC, HOUR_LABEL: HOUR_LABEL, PALACE_NAMES: PALACE_NAMES
+  };
+}));
+
+</script>
+<script>
+const TOOL_VERSION = '1.2.0';   // 版號（單一來源）：修錯誤跳 patch、加功能跳 minor、破壞性改動跳 major
+const E = window.ziweiEngine;
+const $ = id => document.getElementById(id);
+(function(){ const s=document.getElementById('subtitle'); if(s) s.textContent += ' · v'+TOOL_VERSION; })();
+// 引擎未載入時給明確提示（避免靜默失敗）；出生時辰/流時選項已改為靜態 HTML，不再靠 JS 填充
+if(!E || typeof E.computeChart!=='function'){
+  document.body.insertAdjacentHTML('afterbegin',
+    '<div style="background:#c2683f;color:#fff;padding:12px 16px;font-family:sans-serif;font-size:14px;text-align:center">紫微引擎未載入完成，請確認此檔案完整（單檔版需含內嵌引擎）。</div>');
+}
+
+// 地支 → 盤面 grid 位置 (row,col) 1-indexed
+const GRID = {0:[4,3],1:[4,2],2:[4,1],3:[3,1],4:[2,1],5:[1,1],6:[1,2],7:[1,3],8:[1,4],9:[2,4],10:[3,4],11:[4,4]};
+const TYPE_CLS = {主:'major',輔:'aux',煞:'sha',雜:'misc'};
+// 十二宮簡稱（對應 PALACE_NAMES 順序），交友用「奴」與參考盤一致
+const PABBR = ['命','兄','夫','子','財','疾','遷','奴','官','田','福','父'];
+
+let CUR_YEAR=2026;            // 檢視基準年（中宮虛歲/預設運限/本命盤匯出流年），可由頂端「基準年」切換
+let CHART=null;               // 目前命盤資料，盤別切換時不必重算
+
+// 依目前盤別與運限選擇，算出三層四化的疊加 map
+// 計算某虛歲的小限落宮地支
+function xiaoZhiOf(age){
+  return CHART.xiaoForward?(CHART.xiaoStart+age-1)%12:((CHART.xiaoStart-(age-1))%12+12)%12;
+}
+function activeHua(){
+  const pt=$('panType').value;
+  const layers=[{prefix:'',zhi:-1,hua:CHART.huaMap}]; // 生年層永遠在底
+  let liuStars=null, rows='';
+  const ageOf=yr=>yr-CHART.lunarBirthYear+1;
+  const daOf =age=>CHART.daList.find(x=>age>=x.start&&age<=x.end);
+
+  if(pt==='大限盤'){
+    const d=CHART.daList[+$('daPick').value];
+    if(d){ layers.push({prefix:'限',zhi:d.zhiIndex,hua:d.hua});
+      rows=`<div class="row"><span>大限</span><span>${d.start}-${d.end}　${d.ganZhi}（${d.palaceName}）</span></div>`+
+           `<div class="row"><span>大限四化</span><span>${d.huaText}</span></div>`; }
+  }
+  else if(pt==='小限盤'){
+    const yr=+$('xiaoYear').value, age=ageOf(yr);
+    $('xiaoAge').textContent=age>0?`虛歲 ${age}`:'(早於出生)';
+    const d=daOf(age); if(d) layers.push({prefix:'限',zhi:d.zhiIndex,hua:d.hua});
+    if(age>0){ const z=xiaoZhiOf(age); layers.push(mkLayer('小',z));
+      rows=`<div class="row"><span>小限</span><span>虛歲${age}（${yr}）　${E.GAN[CHART.zhiGanIndex[z]]}${E.ZHI[z]}（${pName(z)}）</span></div>`+
+           (d?`<div class="row"><span>大限四化</span><span>${d.huaText}</span></div>`:'')+
+           `<div class="row"><span>小限四化</span><span>${E.huaTextOf(CHART.zhiGanIndex[z])}</span></div>`; }
+  }
+  else if(pt[0]==='流'){
+    const yr=+$('flYear').value, age=ageOf(yr);
+    const L=E.liuNian(yr), dou=douJun(L.zhi);
+    if(pt==='流年盤'){
+      const d=daOf(age); if(d) layers.push({prefix:'限',zhi:d.zhiIndex,hua:d.hua});
+      if(age>0) layers.push(mkLayer('小',xiaoZhiOf(age)));
+      layers.push({prefix:'流',zhi:L.mingZhi,hua:L.hua}); liuStars=L.stars;
+      $('flInfo').textContent=`${L.ganZhi} · 虛歲${age>0?age:'—'}`;
+      rows=`<div class="row"><span>流年</span><span>${L.ganZhi}（${yr}）　流命在${L.zhiChar}（${pName(L.mingZhi)}）</span></div>`+
+           `<div class="row"><span>流年四化</span><span>${L.huaText}</span></div>`+
+           (d?`<div class="row"><span>大限四化</span><span>${d.huaText}</span></div>`:'')+
+           (age>0?`<div class="row"><span>小限四化</span><span>${E.huaTextOf(CHART.zhiGanIndex[xiaoZhiOf(age)])}</span></div>`:'');
+    } else {
+      // 流月/流日/流時：完整鏈 生年＋大限＋小限＋流年＋流月(＋流日)(＋流時)
+      // 運限四化取四柱天干（月柱/日柱/時柱）；命宮位置由斗君順推（農曆月日）
+      const y=+$('flYear').value, gMon=+$('flMonth').value, gDay=+$('flDay').value;
+      const P=solarPillars(y,gMon,gDay), lun=P.lunar, year=lun.lYear, age=ageOf(year);
+      const d=daOf(age); if(d) layers.push({prefix:'限',zhi:d.zhiIndex,hua:d.hua});
+      if(age>0) layers.push(mkLayer('小',xiaoZhiOf(age)));
+      const Ly=E.liuNian(year); layers.push({prefix:'流',zhi:Ly.mingZhi,hua:Ly.hua});
+      const dou2=douJun(Ly.zhi);
+      const yueZhi=((dou2+(lun.lMonth-1))%12+12)%12;
+      layers.push({prefix:'月',zhi:yueZhi,hua:E.siHuaByGan(P.monthGan)});
+      let posLines=`<div class="row"><span>流月</span><span>月柱${P.monthGZ}　命宮在${E.ZHI[yueZhi]}（${pName(yueZhi)}）</span></div>`;
+      if(pt==='流日盤'||pt==='流時盤'){
+        const riZhi=((yueZhi+(lun.lDay-1))%12+12)%12;
+        layers.push({prefix:'日',zhi:riZhi,hua:E.siHuaByGan(P.dayGan)});
+        posLines+=`<div class="row"><span>流日</span><span>日柱${P.dayGZ}　命宮在${E.ZHI[riZhi]}（${pName(riZhi)}）</span></div>`;
+        if(pt==='流時盤'){
+          const hr=+$('flHour').value, shiZhi=((riZhi+hr)%12+12)%12, shiGan=hourGanIndex(P.dayGan,hr);
+          layers.push({prefix:'時',zhi:shiZhi,hua:E.siHuaByGan(shiGan)});
+          posLines+=`<div class="row"><span>流時</span><span>時柱${E.GAN[shiGan]}${E.ZHI[hr]}　命宮在${E.ZHI[shiZhi]}（${pName(shiZhi)}）</span></div>`;
+        }
+      }
+      $('flInfo').textContent= pt==='流月盤'?`${P.monthGZ}月`: pt==='流日盤'?`${P.monthGZ}月 ${P.dayGZ}日`:`${P.dayGZ}日 ${E.ZHI[+$('flHour').value]}時`;
+      // 各層四化逐行（含小限）
+      rows=posLines+layers.filter(l=>l.prefix).map(l=>`<div class="row"><span>${LAYER_LABEL[l.prefix]}四化</span><span>${huaMapText(l.hua)}</span></div>`).join('');
+    }
+  }
+  return {panType:pt, layers:layers, liuStars:liuStars, rows:rows};
+}
+
+// 四化標籤：白字色底，字首=層級（生年無字首，其餘為 限/小/流/月/日/時）
+function huaBadge(prefix,hua){
+  const lyr=prefix?`<b class="lyr">${prefix}</b>`:'';
+  return `<span class="hua ${hua} sheng">${lyr}${hua}</span>`;
+}
+const ROLE_CLS={限:'da',小:'xiao',流:'liu',月:'yue',日:'ri',時:'shi'};
+// 小工具（依 CHART）
+const pName=z=>CHART.palaces[z].palaceName;
+const mkLayer=(prefix,z)=>({prefix:prefix,zhi:z,hua:E.siHuaByGan(CHART.zhiGanIndex[z])});
+const LAYER_LABEL={限:'大限',小:'小限',流:'流年',月:'流月',日:'流日',時:'流時'};
+const huaMapText=h=>Object.keys(h).map(s=>s+h[s]).join('　'); // {星:化} → 「星化　星化…」
+function periodRow(label,z){ const gi=CHART.zhiGanIndex[z];
+  return `<div class="row"><span>${label}</span><span>${E.GAN[gi]}${E.ZHI[z]}（${pName(z)}）</span></div>`+
+         `<div class="row"><span>${label}四化</span><span>${E.huaTextOf(gi)}</span></div>`; }
+// 流年斗君（流年正月命宮）：太歲宮起正月逆數至生月，再起子時順數至生時
+function douJun(liuYearZhi){
+  const bornMonth=CHART.monthForChart, bornHour=CHART.input.hourBranch;
+  const p1=((liuYearZhi-(bornMonth-1))%12+12)%12;
+  return (p1+bornHour)%12;
+}
+// 八字四柱（給流月/流日/流時四化用真正的月柱/日柱/時柱天干）
+const SL=window.solarLunar;
+const ganIndexOf=gz=>E.GAN.indexOf(gz.charAt(0));
+// 五鼠遁：日干 → 子時天干索引（甲己甲、乙庚丙、丙辛戊、丁壬庚、戊癸壬）
+const HOUR_STEM_START={甲:0,乙:2,丙:4,丁:6,戊:8,己:0,庚:2,辛:4,壬:6,癸:8};
+const hourGanIndex=(dayGanIdx,hourBranch)=>(HOUR_STEM_START[E.GAN[dayGanIdx]]+hourBranch)%10;
+function solarPillars(y,m,d){
+  const sl=SL.solar2lunar(y,m,d,12); // 正午取日柱，避開夜子時換日
+  return {
+    monthGan:ganIndexOf(sl.getMonthInGanZhi()), monthGZ:sl.getMonthInGanZhi(),
+    dayGan:ganIndexOf(sl.getDayInGanZhi()),     dayGZ:sl.getDayInGanZhi(),
+    lunar:E.solarToLunar(y,m,d)
+  };
+}
+
+function render(){
+  const c=CHART;
+  const A=activeHua();
+  $('refYear').value=CUR_YEAR; $('refGZ').textContent=E.liuNian(CUR_YEAR).ganZhi+'年';
+  const pt=A.panType;
+  $('topPan').textContent=pt;
+  $('daWrap').style.display  = pt==='大限盤'?'':'none';
+  $('xiaoWrap').style.display= pt==='小限盤'?'':'none';
+  const isFl=pt[0]==='流';
+  $('flWrap').style.display   = isFl?'':'none';
+  $('flMonthW').style.display = ['流月盤','流日盤','流時盤'].includes(pt)?'':'none';
+  $('flDayW').style.display   = ['流月盤','流日盤','流時盤'].includes(pt)?'':'none';
+  $('flHourW').style.display  = pt==='流時盤'?'':'none';
+
+  // 各層四化標記（依 A.layers 疊加：生年/大限/小限/流年/流月/流日/流時）
+  const huaBadges=name=>A.layers.map(L=>(L.hua&&L.hua[name])?huaBadge(L.prefix,L.hua[name]):'').join('');
+  // 流曜依地支分組
+  const flowByZhi={};
+  if(A.liuStars) A.liuStars.forEach(s=>{(flowByZhi[s.zhi]=flowByZhi[s.zhi]||[]).push(s.name);});
+  const starHTML=s=>{
+    const cls=TYPE_CLS[s.type]||'misc';
+    let h=`<span class="star ${cls}">${s.name}`;
+    if(s.brightness) h+=`<span class="bri">${s.brightness}</span>`;
+    h+=huaBadges(s.name)+'</span>';
+    return h;
+  };
+
+  const board=$('board'); board.innerHTML=''; board.classList.remove('hidden');
+
+  for(let z=0;z<12;z++){
+    const p=c.palaces[z];
+    const cell=document.createElement('div');
+    const isSanFang=['遷移','財帛','官祿'].includes(p.palaceName); // 命宮三方
+    cell.className='cell'+(isSanFang?' sanfang':'')+(p.isMing?' ming':'')+(p.isShen?' shen':'');
+    const [r,col]=GRID[z];
+    cell.style.gridRow=r; cell.style.gridColumn=col;
+    const rowHTML=arr=>arr.map(starHTML).join('');
+    const majors=p.stars.filter(s=>s.type==='主');
+    const lucky =p.stars.filter(s=>s.type==='輔'||s.type==='煞');
+    const minor =p.stars.filter(s=>s.type==='雜');
+    const dx=p.daXian?`${p.daXian.start}-${p.daXian.end}`:'';
+    let tag='';
+    if(p.isMing) tag+='<span class="tag ming">命</span>';
+    if(p.isShen) tag+='<span class="tag shen">身</span>';
+    // 運限宮名：大限綠、小限藍（隨選擇即時重算；大命/小命即為運限命宮所在）
+    // 運限宮名角色標籤（每個非生年層各一個：大綠/小藍/流紫/月日時）
+    const roleChips=A.layers.filter(L=>L.zhi>=0)
+      .map(L=>`<span class="prole ${ROLE_CLS[L.prefix]}">${L.prefix}${PABBR[(L.zhi-z+12)%12]}</span>`).join('');
+    const flow=flowByZhi[z]||[];
+    const flowRow=flow.length?`<div class="star-row flow">${flow.map(n=>`<span class="star flow">${n}</span>`).join('')}</div>`:'';
+    cell.innerHTML=
+      `<div class="dx">${dx}</div>`+
+      `<div class="stars">`+
+        `<div class="star-row majors">${rowHTML(majors)}</div>`+
+        `<div class="star-row lucky">${rowHTML(lucky)}</div>`+
+        `<div class="star-row minor">${rowHTML(minor)}</div>`+
+        flowRow+
+      `</div>`+
+      `<div class="footer"><span class="proles"><span class="pname">${p.palaceName}${tag}</span>${roleChips}</span><span class="gz">${p.ganZhi}</span></div>`;
+    board.appendChild(cell);
+  }
+
+  // 中宮
+  const center=document.createElement('div');
+  center.className='center';
+  const inp=c.input;
+  const huaTxt=Object.keys(c.huaMap).map(k=>`${k}${c.huaMap[k]}`).join('　');
+  center.innerHTML=
+    `<h3 class="nm">${$('name').value||'命主'}</h3>`+
+    `<div class="row"><span>盤別</span><span style="color:var(--gold);font-weight:600">${A.panType}</span></div>`+
+    `<div class="row"><span>性別 / 陰陽</span><span>${c.yinYangGender}</span></div>`+
+    `<div class="row"><span>五行局</span><span>${c.juName}</span></div>`+
+    `<div class="row"><span>生肖 / 虛歲</span><span>${c.zodiac}　${CUR_YEAR-c.lunar.lYear+1}歲</span></div>`+
+    `<div class="row"><span>農曆出生</span><span>${c.lunarText}</span></div>`+
+    `<div class="row"><span>命主 / 身主</span><span>${c.mingZhu}　${c.shenZhu}</span></div>`+
+    `<div class="row"><span>命宮 / 身宮</span><span>${E.ZHI[c.mingGong]}(${c.mingGanZhi})　身在${E.ZHI[c.shenGong]}</span></div>`+
+    `<div class="row"><span>生年四化</span><span>${huaTxt}</span></div>`+
+    A.rows+
+    `<div class="fnbtns"><button>功能</button><button>讚歎</button><button>主畫面</button><button>批註</button></div>`;
+  board.appendChild(center);
+
+  // 法派註 + 圖例
+  const n=$('notes'); n.classList.remove('hidden');
+  n.innerHTML=`<h4>排盤說明 · 採用法派</h4><ul>`+
+    c.notes.map(x=>`<li>${x}</li>`).join('')+
+    `<li>【運限四化】流年/流月/流日/流時四化取對應的「八字四柱天干」（年柱/月柱/日柱/時柱，月柱依節氣、時柱依五鼠遁）；<b>大限、小限</b>則取「該運限命宮的宮干」起四化。深層盤（流月/日/時）的四化鏈為完整累進：生年＋大限＋<b>小限</b>＋流年＋流月＋…。起小限採通行「依年支固定起宮、男順女逆」法，待核對。流月/日/時命宮位置由「斗君法」順推（太歲宮逆生月、順生時定斗君，用農曆月日）。</li>`+
+    `</ul>`+
+    `<div class="legend">`+
+    `<span><i class="dot" style="background:var(--major)"></i>主星</span>`+
+    `<span><i class="dot" style="background:var(--aux)"></i>六吉</span>`+
+    `<span><i class="dot" style="background:var(--sha)"></i>六凶</span>`+
+    `<span><i class="dot" style="background:var(--misc)"></i>雜曜</span>`+
+    `<span><i class="dot" style="background:var(--hua-lu)"></i>祿</span>`+
+    `<span><i class="dot" style="background:var(--hua-quan)"></i>權</span>`+
+    `<span><i class="dot" style="background:var(--hua-ke)"></i>科</span>`+
+    `<span><i class="dot" style="background:var(--hua-ji)"></i>忌</span>`+
+    `</div>`+
+    `<div class="legend" style="margin-top:6px">四化標記（顏色=祿權科忌，字首=層級）：`+
+    `${huaBadge('','祿')}生年　${huaBadge('限','權')}大限　${huaBadge('小','科')}小限　`+
+    `${huaBadge('流','忌')}流年　${huaBadge('月','祿')}流月　${huaBadge('日','權')}流日　${huaBadge('時','科')}流時</div>`+
+    `<div class="legend" style="margin-top:6px">宮名角色：`+
+    `<span class="prole da">大</span>大限　<span class="prole xiao">小</span>小限　`+
+    `<span class="prole liu">流</span>流年　<span class="prole yue">月</span>流月　<span class="prole ri">日</span>流日　<span class="prole shi">時</span>流時　｜　`+
+    `<span class="star flow" style="font-family:var(--font-serif)">流曜</span>流年諸星</div>`;
+}
+
+function compute(){
+  const o={
+    solarYear:+$('y').value, solarMonth:+$('m').value, solarDay:+$('d').value,
+    hourBranch:+$('h').value, gender:$('gender').value, leapRule:$('leap').value
+  };
+  try{
+    CHART=E.computeChart(o);
+    // 大限下拉：列出 12 大限，預設選中當前年所在大限
+    const dp=$('daPick'); dp.innerHTML='';
+    const age=CUR_YEAR-CHART.lunarBirthYear+1; let defIdx=0;
+    CHART.daList.forEach((d,i)=>{
+      const op=document.createElement('option');
+      op.value=i; op.textContent=`${d.start}-${d.end}　${d.ganZhi}（${d.palaceName}）`;
+      dp.appendChild(op); if(age>=d.start&&age<=d.end) defIdx=i;
+    });
+    dp.value=defIdx;
+    if(!$('xiaoYear').value) $('xiaoYear').value=CUR_YEAR;
+    // 運限（流年/月/日/時）預設：國曆系統日期（流月/日/時用國曆日期換四柱）
+    if(!$('flYear').value)  $('flYear').value=CUR_YEAR;
+    if(!$('flMonth').value) $('flMonth').value=6;
+    if(!$('flDay').value)   $('flDay').value=11;
+    render();
+    syncAllCustom();
+  }catch(err){ alert('排盤失敗：'+err.message); console.error(err); }
+}
+
+/* 自製下拉：把每個 <select> 換成不依賴原生彈窗的下拉，Artifact 沙箱也能用 */
+function enhanceSelect(sel){
+  if(sel.dataset.cs) return; sel.dataset.cs='1';
+  sel.classList.add('native-hidden');
+  const wrap=document.createElement('span'); wrap.className='cs';
+  const btn=document.createElement('button'); btn.type='button'; btn.className='cs-btn';
+  const list=document.createElement('div'); list.className='cs-list';
+  const sync=()=>{ const o=sel.options[sel.selectedIndex]; btn.textContent=o?o.textContent:'—'; };
+  const close=()=>{ list.classList.remove('show'); document.removeEventListener('click',outside,true); };
+  const outside=e=>{ if(!wrap.contains(e.target)) close(); };
+  const build=()=>{ list.innerHTML=''; [...sel.options].forEach(o=>{
+    const it=document.createElement('div');
+    it.className='cs-item'+(o.value===sel.value?' sel':'')+(o.disabled?' dis':'');
+    it.textContent=o.textContent;
+    if(!o.disabled) it.addEventListener('click',ev=>{ ev.stopPropagation();
+      sel.value=o.value; sync();
+      sel.dispatchEvent(new Event('input',{bubbles:true}));
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+      close(); });
+    list.appendChild(it); }); };
+  const open=()=>{ build(); list.classList.add('show'); setTimeout(()=>document.addEventListener('click',outside,true),0); };
+  btn.addEventListener('click',ev=>{ ev.preventDefault(); ev.stopPropagation(); list.classList.contains('show')?close():open(); });
+  sel.addEventListener('change',sync);
+  sel._csSync=sync;
+  wrap.appendChild(btn); wrap.appendChild(list);
+  sel.parentNode.insertBefore(wrap, sel.nextSibling);
+  sync();
+}
+function enhanceAllSelects(){ document.querySelectorAll('select').forEach(enhanceSelect); }
+function syncAllCustom(){ document.querySelectorAll('select').forEach(s=>s._csSync&&s._csSync()); }
+
+/* ========== 存檔 / 讀檔（xiaoliu.ziwei-chart/v2）========== */
+const PALACE_FULL={命宮:'命宮',兄弟:'兄弟宮',夫妻:'夫妻宮',子女:'子女宮',財帛:'財帛宮',疾厄:'疾厄宮',遷移:'遷移宮',交友:'交友宮',官祿:'官祿宮',田宅:'田宅宮',福德:'福德宮',父母:'父母宮'};
+const TYPE_EXPORT={主:'main',煞:'sha',輔:'minor',雜:'minor'};
+const BRIGHT_MAP={廟:'廟',旺:'旺',利:'利',陷:'陷',平:'平',得:'利',不:'閒',地:'利'};
+const SIHUA_MAP={祿:'化祿',權:'化權',科:'化科',忌:'化忌','':null};
+const STAR_EXPORT_NAME={}; // 六煞之空星依本工具用「地空」（解盤 skill 已對齊地空）
+// 煞星亮度（通行表，待核對）子丑寅卯辰巳午未申酉戌亥
+const SHA_BRIGHT={
+  擎羊:['陷','廟','平','陷','廟','平','陷','廟','平','陷','廟','平'],
+  陀羅:['陷','廟','陷','陷','廟','陷','陷','廟','陷','陷','廟','陷'],
+  火星:['陷','平','廟','廟','平','廟','廟','平','陷','陷','平','陷'],
+  鈴星:['陷','平','廟','廟','平','廟','廟','平','陷','陷','平','陷'],
+  地空:['陷','陷','陷','陷','陷','平','陷','陷','陷','陷','陷','平'],
+  地劫:['陷','陷','陷','陷','陷','平','陷','陷','陷','陷','陷','平']
+};
+const pad=n=>String(n).padStart(2,'0');
+function isoNow(){ const d=new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}+08:00`; }
+const HOUR_REP=['00:30','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
+
+// {星:化} → {化祿:星,化權:星,化科:星,化忌:星}
+// {星:化} → {祿:星,權:星,科:星,忌:星}（sihua 物件統一用單字鍵 祿/權/科/忌，全專案一致）
+const invHua=h=>{ const o={}; for(const s in h) o[h[s]]=s; return o; };
+const huaOfGan=g=>invHua(E.siHuaByGan(g));
+
+// 依當下盤別組「運限定位鏈」layers（與畫面同一套四化/斗君邏輯）
+// 匯出運限定位鏈：一律帶「大限＋小限＋流年」年層級鏈（供流年解盤），深層盤再加流月/流日/流時。
+function currentChain(){
+  const pan=$('panType').value;
+  const c=CHART, birthY=c.lunarBirthYear, chain={};
+  const dateBased = (pan==='流月盤'||pan==='流日盤'||pan==='流時盤');
+  const gMon=+$('flMonth').value, gDay=+$('flDay').value, flY=+$('flYear').value;
+  // 1. 決定「匯出年」：哪個畫面就以那個畫面的年；本命/大限盤給合理預設
+  let exportYear;
+  if(dateBased)            exportYear = solarPillars(flY,gMon,gDay).lunar.lYear; // 國曆日期→農曆年
+  else if(pan==='流年盤')  exportYear = flY;
+  else if(pan==='小限盤')  exportYear = +$('xiaoYear').value;
+  else if(pan==='大限盤')  exportYear = birthY + c.daList[+$('daPick').value].start - 1; // 該大限首年
+  else                     exportYear = CUR_YEAR; // 本命盤 → 當前年
+  const age=exportYear-birthY+1;
+  // 2. 年層級鏈（一律輸出）：大限（含該年所在大限，缺則取首限）＋小限＋流年
+  const d=c.daList.find(x=>age>=x.start&&age<=x.end)||c.daList[0], di=c.daList.indexOf(d);
+  chain.daxian={order:di+1,ageRange:`${d.start}-${d.end}`,palaceBranch:d.zhi,stem:d.gan,sihua:invHua(d.hua)};
+  if(age>0){ const z=xiaoZhiOf(age);
+    chain.xiaoxian={year:exportYear,age:age,palaceBranch:E.ZHI[z],palaceStem:E.GAN[c.zhiGanIndex[z]],sihua:huaOfGan(c.zhiGanIndex[z])}; }
+  const L=E.liuNian(exportYear);
+  chain.liunian={year:exportYear,stemBranch:L.ganZhi,age:age,palaceBranch:L.zhiChar,sihua:invHua(L.hua),
+    flowStars:L.stars.map(s=>({name:s.name,branch:E.ZHI[s.zhi]}))};
+  // 3. 深層盤再疊流月/流日/流時
+  if(dateBased){
+    const P=solarPillars(flY,gMon,gDay),lun=P.lunar;
+    const dou=douJun(L.zhi), yueZhi=((dou+(lun.lMonth-1))%12+12)%12;
+    chain.liuyue={lunarMonth:lun.lMonth,isLeapMonth:!!lun.isLeap,stemBranch:P.monthGZ,palaceBranch:E.ZHI[yueZhi],sihua:huaOfGan(P.monthGan)};
+    if(pan==='流月盤') return chain;
+    const riZhi=((yueZhi+(lun.lDay-1))%12+12)%12;
+    chain.liuri={solarDate:`${flY}-${pad(gMon)}-${pad(gDay)}`,lunarDay:lun.lDay,stemBranch:P.dayGZ,palaceBranch:E.ZHI[riZhi],sihua:huaOfGan(P.dayGan)};
+    if(pan==='流日盤') return chain;
+    const hr=+$('flHour').value, shiZhi=((riZhi+hr)%12+12)%12, shiGan=hourGanIndex(P.dayGan,hr);
+    chain.liushi={hourBranch:E.ZHI[hr],palaceBranch:E.ZHI[shiZhi],stemBranch:E.GAN[shiGan]+E.ZHI[hr],sihua:huaOfGan(shiGan)};
+  }
+  return chain;
+}
+
+function buildExport(){
+  const c=CHART, inp=c.input, hb=inp.hourBranch;
+  const isLateZi = hb===0 ? $('lateZi').checked : false;
+  const solarTime = (hb===0 && isLateZi) ? '23:30' : HOUR_REP[hb];
+  const palaces=[];
+  for(let z=0;z<12;z++){
+    const p=c.palaces[z];
+    const stars=p.stars.map(s=>{
+      let b=null;
+      if(s.type==='主') b=BRIGHT_MAP[s.brightness]||null;
+      else if(s.type==='煞') b=(SHA_BRIGHT[s.name]?SHA_BRIGHT[s.name][z]:null);
+      return { name:STAR_EXPORT_NAME[s.name]||s.name, type:TYPE_EXPORT[s.type], brightness:b, sihua:SIHUA_MAP[s.hua||''] };
+    });
+    palaces.push({ branch:p.zhi, stem:p.gan, palaceName:PALACE_FULL[p.palaceName], isBodyPalace:!!p.isShen, stars:stars });
+  }
+  const decades=c.daList.map((d,i)=>({ order:i+1, ageRange:`${d.start}-${d.end}`, palaceBranch:d.zhi, palaceName:PALACE_FULL[d.palaceName] }));
+  const out={
+    schema:'xiaoliu.ziwei-chart/v2', exportedAt:isoNow(),
+    meta:{
+      name:$('name').value||'未命名', gender:inp.gender,
+      solarDate:`${inp.solarYear}-${pad(inp.solarMonth)}-${pad(inp.solarDay)}`, solarTime:solarTime,
+      lunarDate:`${c.yearGanZhi}年${c.lunar.isLeap?'閏':''}${c.lunar.lMonth}月${c.lunar.lDay}日`,
+      isLeapMonth:!!c.lunar.isLeap, hourBranch:E.ZHI[hb], isLateZi:isLateZi,
+      yinYangGender:c.yinYangGender, fiveElementBureau:c.juName,
+      mingGong:E.ZHI[c.mingGong], shenGong:E.ZHI[c.shenGong]
+    },
+    palaces:palaces, decades:decades
+  };
+  const chain=currentChain();
+  if(chain && Object.keys(chain).length) out.layers=chain;
+  return out;
+}
+
+function validateChart(j){
+  const e=[];
+  const schema=j&&j.schema;
+  if(schema!=='xiaoliu.ziwei-chart/v2' && schema!=='xiaoliu.ziwei-chart/v1') e.push('schema 不符（需 ziwei-chart v1 或 v2）');
+  const P=Array.isArray(j&&j.palaces)?j.palaces:[];
+  if(P.length!==12) e.push('palaces 需 12 筆（目前 '+P.length+'）');
+  if(new Set(P.map(p=>p.branch)).size!==12) e.push('宮支重複或缺漏');
+  const need=Object.values(PALACE_FULL);
+  need.forEach(nm=>{ if(P.filter(p=>p.palaceName===nm).length!==1) e.push('宮名缺漏/重複：'+nm); });
+  const body=P.filter(p=>p.isBodyPalace);
+  if(body.length!==1) e.push('身宮 isBodyPalace 需恰好一個');
+  else if(j.meta && body[0].branch!==j.meta.shenGong) e.push('身宮宮支與 meta.shenGong 不符');
+  const mp=P.find(p=>p.palaceName==='命宮');
+  if(mp && j.meta && mp.branch!==j.meta.mingGong) e.push('命宮宮支與 meta.mingGong 不符');
+  const all=P.flatMap(p=>Array.isArray(p.stars)?p.stars:[]);
+  ['紫微','天機','太陽','武曲','天同','廉貞','天府','太陰','貪狼','巨門','天相','天梁','七殺','破軍']
+    .forEach(m=>{ if(all.filter(s=>s.name===m).length!==1) e.push('主星缺漏/重複：'+m); });
+  ['擎羊','陀羅','火星','鈴星','地空','地劫']
+    .forEach(m=>{ if(!all.some(s=>s.name===m)) e.push('六煞缺漏：'+m); });
+  ['化祿','化權','化科','化忌']
+    .forEach(h=>{ if(all.filter(s=>s.sihua===h).length!==1) e.push('生年四化需各一次：'+h); });
+  all.forEach(s=>{ if((s.type==='main'||s.type==='sha') && (s.brightness==null||s.brightness==='')) e.push('主星/煞星缺亮度：'+s.name); });
+  if(j.meta && j.meta.hourBranch==='子' && typeof j.meta.isLateZi!=='boolean') e.push('子時生需明確 isLateZi(true/false)');
+  // v2：layers 鏈式完整性 + 各層四化
+  const Lr=j&&j.layers;
+  if(Lr){
+    const starSet=new Set(all.map(s=>s.name));
+    // #7 鏈式：流時→流日→流月→流年 不可跳層
+    const mustChain=['liunian','liuyue','liuri','liushi'];
+    for(let i=mustChain.length-1;i>0;i--){
+      if(Lr[mustChain[i]] && !Lr[mustChain[i-1]]) e.push(`層級鏈不完整：有 ${mustChain[i]} 卻缺 ${mustChain[i-1]}`);
+    }
+    // #7 硬化：凡輸出 xiaoxian 或 liunian，必同時輸出 daxian（含 sihua）
+    if((Lr.xiaoxian||Lr.liunian) && !Lr.daxian) e.push('鏈式硬化：有 xiaoxian/liunian 卻缺 daxian（疊加計數含大限層，必須一併輸出）');
+    ['daxian','xiaoxian','liunian','liuyue','liuri','liushi'].forEach(k=>{
+      if(Lr[k] && Lr[k].palaceBranch && E.ZHI.indexOf(Lr[k].palaceBranch)<0) e.push(`${k}.palaceBranch 非法宮支：${Lr[k].palaceBranch}`);
+    });
+    if(Lr.daxian && Array.isArray(j.decades)){
+      const d=j.decades.find(x=>x.order===Lr.daxian.order);
+      if(!d) e.push('daxian.order 與 decades 對不上');
+      else if(d.palaceBranch!==Lr.daxian.palaceBranch) e.push('daxian 宮支與 decades 不一致');
+    }
+    // #8 凡參與疊加之層 sihua 必存（daxian/xiaoxian/liunian/liuyue/liuri 各含祿權科忌四鍵、星名實有）
+    const chkSihua=(k)=>{ const ly=Lr[k];
+      if(!ly.sihua){ e.push(`${k}.sihua 必填但缺漏`); return; }
+      ['祿','權','科','忌'].forEach(h=>{
+        if(!ly.sihua[h]) e.push(`${k}.sihua 缺 ${h}`);
+        else if(!starSet.has(ly.sihua[h])) e.push(`${k}.sihua ${h} 指向盤上不存在的星：${ly.sihua[h]}`);
+      });
+    };
+    ['daxian','xiaoxian','liunian','liuyue','liuri'].forEach(k=>{ if(Lr[k]) chkSihua(k); });
+  }
+  return e;
+}
+
+function doExport(){
+  if(!CHART){ alert('請先排盤'); return; }
+  const j=buildExport(), errs=validateChart(j);
+  if(errs.length){ alert('匯出前自我驗證未通過：\n• '+errs.join('\n• ')); return; }
+  const blob=new Blob([JSON.stringify(j,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`紫微命盤-${j.meta.name}.json`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),0);
+}
+
+function doImport(file){
+  const fr=new FileReader();
+  fr.onload=()=>{
+    let j; try{ j=JSON.parse(fr.result); }catch(err){ alert('JSON 解析失敗：'+err.message); return; }
+    const errs=validateChart(j);
+    if(errs.length){ alert('讀檔驗證未通過，已中止：\n• '+errs.join('\n• ')); return; }
+    const m=j.meta;
+    $('name').value=m.name||'';
+    $('gender').value=(m.gender==='M'?'M':'F');
+    const sd=String(m.solarDate||'').split('-');
+    if(sd.length===3){ $('y').value=+sd[0]; $('m').value=+sd[1]; $('d').value=+sd[2]; }
+    const hi=E.ZHI.indexOf(m.hourBranch); if(hi>=0) $('h').value=hi;
+    $('lateZi').checked=!!m.isLateZi;
+    compute(); // 先重算本命盤
+    // 還原當下盤別（v2 layers；v1 舊檔的 currentYear 視為流年）
+    const Lr=j.layers || (j.currentYear?{liunian:{year:j.currentYear.year}}:null);
+    if(Lr){
+      if(Lr.liuri && Lr.liuri.solarDate){ const sd=Lr.liuri.solarDate.split('-'); $('flYear').value=+sd[0]; $('flMonth').value=+sd[1]; $('flDay').value=+sd[2]; }
+      else if(Lr.liunian && Lr.liunian.year){ $('flYear').value=Lr.liunian.year; }
+      if(Lr.xiaoxian && Lr.xiaoxian.year) $('xiaoYear').value=Lr.xiaoxian.year;
+      if(Lr.liushi){ const sh=E.ZHI.indexOf(Lr.liushi.hourBranch); if(sh>=0)$('flHour').value=sh; }
+      if(Lr.daxian && Lr.daxian.order) $('daPick').value=Lr.daxian.order-1;
+      $('panType').value = Lr.liushi?'流時盤':Lr.liuri?'流日盤':Lr.liuyue?'流月盤':Lr.liunian?'流年盤':Lr.xiaoxian?'小限盤':Lr.daxian?'大限盤':'本命盤';
+      render();
+    }
+    alert(`讀檔成功，已還原「${m.name||''}」的命盤（${$('panType').value}）。`);
+  };
+  fr.readAsText(file);
+}
+
+/* ========== 本月能量視圖 ========== */
+// 固定計分參數：祿/權/科 各+10、忌 −15；祿權科齊 → 整顆星分數 ×2；慎日門檻＝疊忌數≥3（質性用，不受權重影響）
+const ENERGY={ W_LU:10, W_QUAN:10, W_KE:10, W_JI:15, TRIPLE_MULT:2, JI_THRESHOLD:3, year:null, month:null, leap:false, sel:null };
+const FRAME_AUX=new Set(['左輔','右弼','文昌','文曲','天魁','天鉞','祿存','天馬','紅鸞','天喜','三台','八座','天刑']);
+const LABEL_TXT={auspicious:'吉日',caution:'慎日',mixed:'混局日',normal:'平日'};
+const LABEL_CLS={auspicious:'aus',caution:'cau',mixed:'mix',normal:'nor'};
+
+// 單日：建鏈 → 取流日命宮三方四正 → 框架內星疊加五層四化計數
+// 共用：對 framBranches(三方四正) 內星曜，統計 layers 各層四化疊加 → 質性標籤＋分數＋triggers
+function stackCount(frame,layers){
+  let jiTotal=0,triple=false,score=0; const triggers=[]; const seen={};
+  frame.forEach(b=>CHART.palaces[b].stars.forEach(st=>{
+    if(!(st.type==='主'||st.type==='煞'||FRAME_AUX.has(st.name))||seen[st.name]) return;
+    seen[st.name]=1;
+    let lu=0,quan=0,ke=0,ji=0;
+    layers.forEach(ly=>{ const h=ly[st.name]; if(h==='祿')lu++;else if(h==='權')quan++;else if(h==='科')ke++;else if(h==='忌')ji++; });
+    jiTotal+=ji;
+    const tri=lu>=1&&quan>=1&&ke>=1; if(tri)triple=true;
+    const sc=lu*ENERGY.W_LU+quan*ENERGY.W_QUAN+ke*ENERGY.W_KE-ji*ENERGY.W_JI; // 祿權科齊→整顆星分數×TRIPLE_MULT
+    score+=tri?sc*ENERGY.TRIPLE_MULT:sc;
+    if((lu+quan+ke+ji)>=2||tri||ji>=2) triggers.push({name:st.name,natal:CHART.palaces[b].palaceName,lu,quan,ke,ji});
+  }));
+  const isJi=jiTotal>=ENERGY.JI_THRESHOLD, isAus=triple;
+  return {label:isAus&&isJi?'mixed':isAus?'auspicious':isJi?'caution':'normal', score:Math.round(score*100)/100, jiTotal, triggers};
+}
+function energyDay(lY,lM,lD,leap){
+  const s=E.lunarToSolar(lY,lM,lD,leap);
+  const P=solarPillars(s.y,s.m,s.d);
+  const age=lY-CHART.lunarBirthYear+1;
+  const da=CHART.daList.find(x=>age>=x.start&&age<=x.end);
+  const L=E.liuNian(lY), dou=douJun(L.zhi);
+  const yueZhi=((dou+(lM-1))%12+12)%12;
+  const riZhi=((yueZhi+(lD-1))%12+12)%12;
+  const xiaoHua=age>0?E.siHuaByGan(CHART.zhiGanIndex[xiaoZhiOf(age)]):{}; // 小限四化（小限宮干）
+  const layers=[CHART.huaMap, da?da.hua:{}, xiaoHua, L.hua, E.siHuaByGan(P.monthGan), E.siHuaByGan(P.dayGan)]; // 生年/大限/小限/流年/流月/流日
+  const r=stackCount([riZhi,(riZhi+6)%12,(riZhi+4)%12,(riZhi+8)%12], layers);
+  return Object.assign({lunarDay:lD,solar:s,solarStr:`${s.m}/${s.d}`,dayGZ:P.dayGZ,riZhiName:E.ZHI[riZhi],riPalace:CHART.palaces[riZhi].palaceName}, r);
+}
+function energyMonth(){
+  const len=E.lunarMonthLen(ENERGY.year,ENERGY.month,ENERGY.leap), days=[];
+  for(let d=1;d<=len;d++) days.push(energyDay(ENERGY.year,ENERGY.month,d,ENERGY.leap));
+  return days;
+}
+function energyNote(d,unit){
+  unit=unit||'日';
+  const tri=d.triggers.find(t=>t.lu>=1&&t.quan>=1&&t.ke>=1);
+  if(d.label==='auspicious') return `祿權科齊聚${tri?tri.natal:'命宮三方'}——順風順水、事半功倍，宜提案、開口談、辦大事。`;
+  if(d.label==='caution')    return `三方化忌偏多（疊忌 ${d.jiTotal}），宜守成、走例行公事，大事改期、先穩後動。`;
+  if(d.label==='mixed')      return `能量大但方向雜、外緣多變；穩著走、先理順再動，不貪快。`;
+  return `平穩${unit}，按表操課即可。`;
+}
+
+function renderEnergy(){
+  const days=energyMonth();
+  const aus=days.filter(d=>d.label==='auspicious').length,
+        cau=days.filter(d=>d.label==='caution').length,
+        mix=days.filter(d=>d.label==='mixed').length;
+  const yGZ=E.liuNian(ENERGY.year).ganZhi;
+  $('enSummary').innerHTML=`${yGZ}年 ${ENERGY.leap?'閏':''}${ENERGY.month}月　共 ${days.length} 天　·　<b style="color:#5f8f4e">吉日 ${aus}</b>　<b style="color:#c2683f">慎日 ${cau}</b>${mix?`　<b style="color:#b5803a">混局 ${mix}</b>`:''}`;
+
+  const n=days.length, maxAbs=Math.max(6,...days.map(d=>Math.abs(d.score)));
+  const padL=30,padR=14,padT=14,padB=26, stepX=Math.max(30, Math.min(48,(680-padL-padR)/(n-1)));
+  const plotW=stepX*(n-1), W=padL+padR+plotW, H=240, plotH=H-padT-padB, midY=padT+plotH/2;
+  const X=i=>padL+i*stepX, Y=sc=>midY-(sc/maxAbs)*(plotH/2);
+  let g='';
+  // 格線
+  [maxAbs,maxAbs/2,0,-maxAbs/2,-maxAbs].forEach(v=>{
+    const yy=Y(v);
+    g+=`<line x1="${padL}" y1="${yy}" x2="${padL+plotW}" y2="${yy}" stroke="${v===0?'#c9bd9f':'#e7ddc6'}" stroke-width="${v===0?1.2:0.8}" ${v===0?'':'stroke-dasharray="3 3"'}/>`;
+    g+=`<text class="en-ylab" x="2" y="${yy+3}">${v>0?'+':''}${Math.round(v)}</text>`;
+  });
+  // 折線
+  g+=`<polyline fill="none" stroke="#9c8f7d" stroke-width="1.6" stroke-linejoin="round" points="${days.map((d,i)=>`${X(i)},${Y(d.score)}`).join(' ')}"/>`;
+  // 點 + 日標
+  const COLOR={auspicious:'#5f8f4e',caution:'#c2683f',mixed:'#b5803a',normal:'#b9ad96'};
+  days.forEach((d,i)=>{
+    const big=d.label!=='normal', r=big?5.5:2.6;
+    g+=`<circle class="en-dot" data-i="${i}" cx="${X(i)}" cy="${Y(d.score)}" r="${r}" fill="${COLOR[d.label]}" ${d.label==='mixed'?'stroke="#7a3b2e" stroke-width="1.5"':''}/>`;
+    if(n<=31) g+=`<text class="en-xlab" x="${X(i)}" y="${H-padB+16}" text-anchor="middle">${d.lunarDay}</text>`;
+  });
+  $('enChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}</svg>`+
+    `<div class="energy-legend" style="padding:0 4px">`+
+    `<span><i style="width:11px;height:11px;background:#5f8f4e"></i>吉日(祿權科齊)</span>`+
+    `<span><i style="width:11px;height:11px;background:#c2683f"></i>慎日(疊忌≥${ENERGY.JI_THRESHOLD})</span>`+
+    `<span><i style="width:11px;height:11px;background:#b5803a;border:1.5px solid #7a3b2e"></i>混局</span>`+
+    `<span><i style="width:7px;height:7px;background:#b9ad96"></i>平日　·　X軸=農曆日　Y軸=能量分</span></div>`;
+  // 綁點擊
+  $('enChart').querySelectorAll('.en-dot').forEach(c=>c.onclick=()=>showDay(days,+c.dataset.i));
+  // 預設選：今天(若在本月) 或第一個吉/慎日 或第一天
+  let pick=ENERGY.sel;
+  if(pick==null){
+    const t=E.solarToLunar(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate());
+    if(t.lYear===ENERGY.year&&t.lMonth===ENERGY.month&&t.isLeap===ENERGY.leap) pick=t.lDay-1;
+    else pick=days.findIndex(d=>d.label!=='normal'); if(pick<0)pick=0;
+  }
+  showDay(days,Math.min(pick,days.length-1));
+}
+function showDay(days,i){
+  ENERGY.sel=i; const d=days[i];
+  const trg=d.triggers.length? d.triggers.map(t=>`<span class="t"><b>${t.name}</b>(${t.natal})${t.lu?`<span class="lu"> 祿${t.lu}</span>`:''}${t.quan?`<span class="quan"> 權${t.quan}</span>`:''}${t.ke?`<span class="ke"> 科${t.ke}</span>`:''}${t.ji?`<span class="ji"> 忌${t.ji}</span>`:''}</span>`).join('') : '<span style="color:var(--muted);font-size:0.8rem">無顯著引動的星</span>';
+  $('enDetail').innerHTML=
+    `<div class="ed-head"><span>農曆 ${d.lunarDay} 日</span><span style="color:var(--muted);font-size:0.82rem">國曆 ${d.solar.y}/${d.solarStr}　·　${d.dayGZ}日　·　流日命宮在 ${d.riZhiName}（${d.riPalace}）</span>`+
+    `<span class="ed-badge ${LABEL_CLS[d.label]}">${LABEL_TXT[d.label]}</span><span class="ed-score">能量分 ${d.score}</span></div>`+
+    `<div class="ed-note">${energyNote(d)}</div>`+
+    `<div class="ed-trig">${trg}</div>`;
+  // 高亮選中點
+  $('enChart').querySelectorAll('.en-dot').forEach(c=>c.setAttribute('stroke-opacity', +c.dataset.i===i?'1':(c.getAttribute('stroke')?'1':'0')));
+  $('enChart').querySelectorAll('.en-dot').forEach(c=>{ if(+c.dataset.i===i){c.setAttribute('stroke','#1a1411');c.setAttribute('stroke-width','2');} else if(days[+c.dataset.i].label!=='mixed'){c.removeAttribute('stroke');c.removeAttribute('stroke-width');} });
+}
+function openEnergy(){
+  if(!CHART) compute();
+  // 月份下拉
+  const ms=$('enMonth'); if(!ms.options.length){ for(let m=1;m<=12;m++){const o=document.createElement('option');o.value=m;o.textContent=m+'月';ms.appendChild(o);} }
+  if(ENERGY.year==null){ const t=E.solarToLunar(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate()); ENERGY.year=t.lYear; ENERGY.month=t.lMonth; ENERGY.leap=t.isLeap; }
+  $('enYear').value=ENERGY.year; $('enMonth').value=ENERGY.month;
+  syncLeapWrap(); $('enLeap').checked=ENERGY.leap;
+  $('board').classList.add('hidden'); $('notes').classList.add('hidden'); $('energyView').classList.remove('hidden');
+  $('topPan').textContent='本月能量';
+  ENERGY.sel=null; renderEnergy(); syncAllCustom();
+}
+function closeEnergy(){ $('energyView').classList.add('hidden'); $('board').classList.remove('hidden'); $('notes').classList.remove('hidden'); render(); }
+function syncLeapWrap(){ const lm=E.leapMonthOf(ENERGY.year); const show=(lm===ENERGY.month); $('enLeapWrap').classList.toggle('hidden',!show); if(!show)ENERGY.leap=false; }
+function enReload(){ ENERGY.year=+$('enYear').value; ENERGY.month=+$('enMonth').value; syncLeapWrap(); ENERGY.leap=$('enLeap').checked&&!$('enLeapWrap').classList.contains('hidden'); ENERGY.sel=null; renderEnergy(); }
+function enStep(dir){ let m=ENERGY.month+dir, y=ENERGY.year; if(m>12){m=1;y++;} if(m<1){m=12;y--;} ENERGY.year=y; ENERGY.month=m; ENERGY.leap=false; $('enYear').value=y; $('enMonth').value=m; syncLeapWrap(); $('enLeap').checked=false; ENERGY.sel=null; renderEnergy(); syncAllCustom(); }
+
+$('energyBtn').onclick=openEnergy;
+$('backChart').onclick=closeEnergy;
+$('enYear').oninput=enReload; $('enMonth').onchange=enReload; $('enLeap').onchange=enReload;
+$('enPrev').onclick=()=>enStep(-1); $('enNext').onclick=()=>enStep(1);
+
+/* ========== 一生流年能量視圖（energy-calendar/v2 人生視角）========== */
+const LIFE={ palaceIdx:0, maxAge:100, sel:null, frame:'annual' }; // palaceIdx：宮職序(0=命宮)；frame: annual(流年X宮)|native(本命X宮)
+const LIFE_LABEL={auspicious:'吉年',caution:'功課年',mixed:'混局年',normal:'平年'};
+function lifeNote(y){
+  const tri=y.triggers.find(t=>t.lu>=1&&t.quan>=1&&t.ke>=1);
+  if(y.label==='auspicious') return `祿權科齊聚${tri?tri.natal:'此宮三方'}——大運高水位，順勢佈局、開展可成。`;
+  if(y.label==='caution')    return `功課期：宜深耕勿強求，走例行、練內功，大局之事緩行、先穩後動（疊忌 ${y.jiTotal}）。`;
+  if(y.label==='mixed')      return `能量強但方向雜，邊收成邊修正；先理順再動，不貪快。`;
+  return `平穩年，按部就班、累積實力即可。`;
+}
+function lifeYear(age){
+  const year=CHART.lunarBirthYear+age-1;
+  const da=CHART.daList.find(x=>age>=x.start&&age<=x.end);
+  const xz=xiaoZhiOf(age), xiaoGi=CHART.zhiGanIndex[xz];
+  const L=E.liuNian(year);
+  const layers=[CHART.huaMap, da?da.hua:{}, E.siHuaByGan(xiaoGi), L.hua]; // 生年/大限/小限/流年
+  // 框架（預設流年X宮）：annual=流年命宮推X宮；native=本命X宮（固定）
+  const base = LIFE.frame==='native' ? CHART.palaceZhi[LIFE.palaceIdx] : ((L.mingZhi-LIFE.palaceIdx)%12+12)%12;
+  const r=stackCount([base,(base+6)%12,(base+4)%12,(base+8)%12], layers);
+  return Object.assign({ age:age, year:year, frameBranch:base, daGZ:da?da.ganZhi:'—', daRange:da?`${da.start}-${da.end}`:'',
+    isDaStart:!!(da&&da.start===age), xiaoGZ:E.GAN[xiaoGi]+E.ZHI[xz], xiaoPalace:CHART.palaces[xz].palaceName, liuGZ:L.ganZhi }, r);
+}
+function lifeData(){
+  const startAge=1, maxAge=Math.min(LIFE.maxAge, CHART.daList[CHART.daList.length-1].end);
+  const years=[]; for(let a=startAge;a<=maxAge;a++) years.push(lifeYear(a));
+  return {startAge,maxAge,years};
+}
+function renderLife(){
+  const data=lifeData(), years=data.years, n=years.length;
+  const aus=years.filter(y=>y.label==='auspicious').length, cau=years.filter(y=>y.label==='caution').length, mix=years.filter(y=>y.label==='mixed').length;
+  const frameTxt=LIFE.frame==='native'?'本命':'流年';
+  $('lifeSummary').innerHTML=`鎖定 <b>${E.PALACE_NAMES[LIFE.palaceIdx]}</b>（${frameTxt}宮三方四正）　·　${data.startAge}–${data.maxAge}歲　·　<b style="color:#5f8f4e">吉年 ${aus}</b>　<b style="color:#c2683f">功課年 ${cau}</b>${mix?`　<b style="color:#b5803a">混 ${mix}</b>`:''}`;
+  const maxAbs=Math.max(6,...years.map(y=>Math.abs(y.score)));
+  const stepX=Math.max(9,Math.min(15,720/(n-1)));
+  const padL=30,padR=14,padT=28,padB=26, plotW=stepX*(n-1), W=padL+padR+plotW, H=280, plotH=H-padT-padB, midY=padT+plotH/2;
+  const X=i=>padL+i*stepX, Y=sc=>midY-(sc/maxAbs)*(plotH/2), ai=a=>a-data.startAge;
+  let g='';
+  // 大限分段：交替底色 + 起界豎線 + 標籤（宮干 + 年齡區間）
+  const das=CHART.daList.filter(d=>d.end>=data.startAge&&d.start<=data.maxAge);
+  das.forEach((d,k)=>{
+    const a0=Math.max(d.start,data.startAge), a1=Math.min(d.end,data.maxAge);
+    const x0=X(ai(a0))-stepX/2, x1=X(ai(a1))+stepX/2;
+    if(k%2) g+=`<rect x="${x0}" y="${padT}" width="${x1-x0}" height="${plotH}" fill="#b8a98d" opacity="0.06"/>`;
+    if(d.start>=data.startAge){ const xb=X(ai(d.start))-stepX/2; g+=`<line x1="${xb}" y1="${padT}" x2="${xb}" y2="${padT+plotH}" stroke="#cdbf9f" stroke-width="1" stroke-dasharray="3 3"/>`; }
+    const cx=(x0+x1)/2;
+    g+=`<text class="en-da" x="${cx}" y="${padT-15}" text-anchor="middle">${d.ganZhi}</text><text class="en-da" x="${cx}" y="${padT-5}" text-anchor="middle">${d.start}-${d.end}</text>`;
+  });
+  [maxAbs,0,-maxAbs].forEach(v=>{const yy=Y(v);g+=`<line x1="${padL}" y1="${yy}" x2="${padL+plotW}" y2="${yy}" stroke="${v===0?'#c9bd9f':'#e7ddc6'}" stroke-width="${v===0?1.2:0.8}" ${v===0?'':'stroke-dasharray="3 3"'}/><text class="en-ylab" x="2" y="${yy+3}">${v>0?'+':''}${Math.round(v)}</text>`;});
+  g+=`<polyline fill="none" stroke="#9c8f7d" stroke-width="1.4" points="${years.map((y,i)=>`${X(i)},${Y(y.score)}`).join(' ')}"/>`;
+  const COLOR={auspicious:'#5f8f4e',caution:'#c2683f',mixed:'#b5803a',normal:'#b9ad96'};
+  years.forEach((y,i)=>{const big=y.label!=='normal';g+=`<circle class="en-dot" data-i="${i}" cx="${X(i)}" cy="${Y(y.score)}" r="${big?4.8:2.2}" fill="${COLOR[y.label]}" ${y.label==='mixed'?'stroke="#7a3b2e" stroke-width="1.5"':''}/>`;
+    if(y.age%5===0) g+=`<text class="en-xlab" x="${X(i)}" y="${H-padB+15}" text-anchor="middle">${y.age}</text>`;});
+  $('lifeChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}</svg>`+
+    `<div class="energy-legend" style="padding:0 4px"><span><i style="width:11px;height:11px;background:#5f8f4e"></i>吉年(祿權科齊)</span>`+
+    `<span><i style="width:11px;height:11px;background:#c2683f"></i>功課年(疊忌≥${ENERGY.JI_THRESHOLD})</span>`+
+    `<span><i style="width:7px;height:7px;background:#b9ad96"></i>平年</span>`+
+    `<span style="color:#a08a5a">┊ 豎線＝大限交界（標宮干·年齡）</span><span>X軸=虛歲　Y軸=能量與功課的水位（低谷＝功課期，宜深耕勿強求）</span></div>`;
+  $('lifeChart').querySelectorAll('.en-dot').forEach(c=>c.onclick=()=>showLifeYear(years,+c.dataset.i));
+  let pick=LIFE.sel;
+  if(pick==null){ const cur=CUR_YEAR-CHART.lunarBirthYear+1; pick=years.findIndex(y=>y.age===cur); if(pick<0)pick=years.findIndex(y=>y.label!=='normal'); if(pick<0)pick=0; }
+  showLifeYear(years,Math.min(pick,years.length-1));
+}
+function showLifeYear(years,i){
+  LIFE.sel=i; const y=years[i];
+  const trg=y.triggers.length? y.triggers.map(t=>`<span class="t"><b>${t.name}</b>(${t.natal})${t.lu?`<span class="lu"> 祿${t.lu}</span>`:''}${t.quan?`<span class="quan"> 權${t.quan}</span>`:''}${t.ke?`<span class="ke"> 科${t.ke}</span>`:''}${t.ji?`<span class="ji"> 忌${t.ji}</span>`:''}</span>`).join('') : '<span style="color:var(--muted);font-size:0.8rem">無顯著引動的星</span>';
+  $('lifeDetail').innerHTML=
+    `<div class="ed-head"><span>${y.liuGZ}年</span><span style="color:var(--muted);font-size:0.82rem">西元 ${y.year}　·　虛歲 ${y.age}　·　大限 ${y.daGZ}（${y.daRange}）　·　小限 ${y.xiaoGZ}（${y.xiaoPalace}）　·　框架 ${E.ZHI[y.frameBranch]}宮三方</span>`+
+    `<span class="ed-badge ${LABEL_CLS[y.label]}">${LIFE_LABEL[y.label]}</span><span class="ed-score">能量分 ${y.score}</span></div>`+
+    `<div class="ed-note">${lifeNote(y)}</div><div class="ed-trig">${trg}</div>`;
+  $('lifeChart').querySelectorAll('.en-dot').forEach(c=>{ if(+c.dataset.i===i){c.setAttribute('stroke','#1a1411');c.setAttribute('stroke-width','2');} else if(years[+c.dataset.i].label!=='mixed'){c.removeAttribute('stroke');c.removeAttribute('stroke-width');} });
+}
+function openLife(){
+  if(!CHART) compute();
+  const ps=$('lifePalace'); if(!ps.options.length){ E.PALACE_NAMES.forEach((nm,i)=>{const o=document.createElement('option');o.value=i;o.textContent=nm;ps.appendChild(o);}); }
+  $('lifePalace').value=LIFE.palaceIdx; $('lifeMax').value=LIFE.maxAge; $('lifeFrame').value=LIFE.frame;
+  $('board').classList.add('hidden'); $('notes').classList.add('hidden'); $('energyView').classList.add('hidden'); $('lifeView').classList.remove('hidden');
+  $('topPan').textContent='一生流年能量';
+  LIFE.sel=null; renderLife(); syncAllCustom();
+}
+function closeLife(){ $('lifeView').classList.add('hidden'); $('board').classList.remove('hidden'); $('notes').classList.remove('hidden'); render(); }
+
+$('lifeBtn').onclick=openLife;
+$('backChart2').onclick=closeLife;
+$('lifePalace').onchange=()=>{ LIFE.palaceIdx=+$('lifePalace').value; LIFE.sel=null; renderLife(); };
+$('lifeFrame').onchange=()=>{ LIFE.frame=$('lifeFrame').value; LIFE.sel=null; renderLife(); };
+$('lifeMax').oninput=()=>{ const v=+$('lifeMax').value; if(v>=20&&v<=130){ LIFE.maxAge=v; LIFE.sel=null; renderLife(); } };
+
+$('go').onclick=compute;
+$('saveBtn').onclick=doExport;
+$('loadBtn').onclick=()=>$('fileInput').click();
+$('fileInput').onchange=e=>{ if(e.target.files[0]) doImport(e.target.files[0]); e.target.value=''; };
+$('prevHour').onclick=()=>{ $('h').value=(+$('h').value+11)%12; compute(); };
+$('nextHour').onclick=()=>{ $('h').value=(+$('h').value+1)%12; compute(); };
+// 基準年切換：更新虛歲/預設運限/本命匯出流年，並讓流年·小限·流日的年份跟著走
+$('refYear').oninput=()=>{ const v=+$('refYear').value; if(v>=1900&&v<=2200){ CUR_YEAR=v; $('flYear').value=v; $('xiaoYear').value=v; compute(); } };
+['panType','daPick','xiaoYear','flYear','flMonth','flDay','flHour'].forEach(id=>{
+  const el=$(id); el.addEventListener(el.tagName==='SELECT'?'change':'input', render);
+});
+compute(); // 載入即以 Nakai 命例排盤
+enhanceAllSelects(); // 把原生 <select> 換成自製下拉（Artifact 沙箱相容）
+</script>
+</body>
+</html>
