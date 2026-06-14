@@ -195,6 +195,38 @@ button{font-family:var(--font-serif);font-size:0.9rem;letter-spacing:0.06em;padd
 .ed-trig .t b{color:var(--major);}
 .ed-trig .t .lu{color:var(--hua-lu);} .ed-trig .t .quan{color:var(--hua-quan);} .ed-trig .t .ke{color:var(--hua-ke);} .ed-trig .t .ji{color:var(--hua-ji);font-weight:700;}
 .energy-foot{margin-top:10px;font-size:0.74rem;color:var(--muted);line-height:1.6;}
+/* 人生節點三表 */
+.node-tabs{display:inline-flex;gap:4px;flex-wrap:wrap;}
+.ntab{font-family:var(--font-serif);font-size:0.82rem;padding:5px 12px;border:1px solid var(--rule);border-radius:6px;background:transparent;color:var(--gold);cursor:pointer;}
+.ntab.active{background:var(--gold);color:#fff;border-color:var(--gold);}
+.node-table-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;}
+table.node{width:100%;border-collapse:collapse;font-size:0.82rem;background:var(--bg-card);}
+table.node th,table.node td{border-bottom:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top;line-height:1.55;}
+table.node th{font-family:var(--font-serif);color:var(--strong);background:#f5eedd;white-space:nowrap;}
+table.node td:first-child,table.node td:nth-child(2){white-space:nowrap;}
+table.node tr.past td{color:var(--muted);background:rgba(184,169,141,0.04);}
+table.node tr.now td{background:var(--ming);}
+table.node tr.future-ji td{background:#eaf3e2;}
+.vd{font-weight:600;border-radius:4px;padding:1px 7px;font-size:0.76rem;white-space:nowrap;display:inline-block;}
+.vd.ping{color:var(--wood);border:1px solid var(--wood);}
+.vd.watch{color:#fff;background:var(--fire);}
+.vd.bk{color:#8a6d2e;border:1px solid var(--earth);}
+.tag-strong{background:var(--fire);color:#fff;border-radius:4px;padding:1px 6px;font-size:0.74rem;}
+.tag-mid{background:var(--earth);color:#fff;border-radius:4px;padding:1px 6px;font-size:0.74rem;}
+.resolve-yes{color:var(--wood);font-weight:600;}
+.node-ctx{color:var(--muted);font-size:0.7rem;}
+table.node tr.clickable{cursor:pointer;}
+table.node tr.clickable:hover td{background:rgba(168,137,78,0.08);}
+table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
+.drill-strip{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px;}
+.mcell{display:inline-flex;flex-direction:column;align-items:center;min-width:40px;font-size:0.68rem;color:var(--muted);border:1px solid var(--rule);border-radius:5px;padding:3px 4px;background:#fff;line-height:1.35;}
+.mcell b{color:var(--strong);font-family:var(--font-serif);font-weight:600;}
+.mcell i{font-style:normal;font-size:0.62rem;}
+.mcell.xpeak{background:#f6ddd2;border-color:var(--fire);color:var(--fire);}
+.mcell.xpeak b,.mcell.xpeak i{color:var(--fire);}
+.mcell.lpeak{background:#e4efdc;border-color:var(--wood);color:#3f7d36;}
+.mcell.lpeak b,.mcell.lpeak i{color:#3f7d36;}
+.drill-note{font-size:0.8rem;line-height:1.65;}
 
 @media(max-width:720px){
   .board{grid-template-rows:repeat(4,minmax(132px,1fr));}
@@ -281,6 +313,7 @@ button{font-family:var(--font-serif);font-size:0.9rem;letter-spacing:0.06em;padd
   <button class="btn-ghost" id="nextHour">下一個時辰 ›</button>
   <button class="btn-ghost" id="energyBtn">📈 本月能量</button>
   <button class="btn-ghost" id="lifeBtn">📉 一生流年能量</button>
+  <button class="btn-ghost" id="nodeBtn">🗓️ 人生三表</button>
 </div>
 
 <div class="input-card">
@@ -358,10 +391,26 @@ button{font-family:var(--font-serif);font-size:0.9rem;letter-spacing:0.06em;padd
   <div class="energy-foot">人生視角：X 軸逐年（虛歲），年層級四化鏈＝生年＋大限＋小限＋流年（4 層等權，不含流月/日/時）。框架預設取「<b>該年流年的所鎖宮位</b>」三方四正（可切「本命宮」固定框架）。淡豎線＝大限交界、梯田底色＝各限分段，標宮干與年齡區間。Y 軸＝能量與功課的水位，低谷為「功課期：宜深耕勿強求」。能量分只畫高度，不推翻吉年/功課年的質性判定。<br>計分（固定）：每顆星 祿+10、權+10、科+10、忌−15；<b>祿權科齊→整顆星分數×2</b>；功課年＝框架疊忌數≥3。</div>
 </div>
 
+<!-- 人生節點三表 -->
+<div id="nodeView" class="energy hidden">
+  <div class="energy-bar">
+    <button class="btn-ghost" id="backChart3">‹ 返回命盤</button>
+    <span class="node-tabs">
+      <button class="ntab active" data-t="daxian">大限論斷</button>
+      <button class="ntab" data-t="xiong">人生凶事流年</button>
+      <button class="ntab" data-t="ji">人生吉事流年</button>
+    </span>
+    <label class="ctrl" id="nodeNotableWrap"><input type="checkbox" id="nodeNotable" checked> <span id="nodeNotableLabel">只看顯著(吉≥9分)</span></label>
+    <label class="ctrl"><input type="checkbox" id="nodeFutureOnly"> 只看未來</label>
+    <span class="muted-inline" id="nodeSummary"></span>
+  </div>
+  <div id="nodeTableWrap" class="node-table-wrap"></div>
+  <div class="energy-foot">「盤面結構視角」，非定數：① 亮度化解先決（廟旺主星把凶降級）② 凶必帶化解與方向，未來凶不渲染、不做災難倒數 ③ 車／破財／手術等領域分辨需脈絡，標「需脈絡判定」、不武斷 ④ 已過列作印證、未來吉年作把握。本表僅供功課參考，不替你做人生決定。</div>
+</div>
+
 <div class="notes hidden" id="notes"></div>
 
 <script>
-/* ===== inlined: solar-lunar.js ===== */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -728,7 +777,6 @@ button{font-family:var(--font-serif);font-size:0.9rem;letter-spacing:0.06em;padd
 })));
 </script>
 <script>
-/* ===== inlined: ziwei-engine.js ===== */
 /* =============================================================================
  * 紫微斗數 安星引擎  ziwei-engine.js
  * 小六太乙 · 紫微斗數盤工具
@@ -1213,7 +1261,7 @@ button{font-family:var(--font-serif);font-size:0.9rem;letter-spacing:0.06em;padd
 
 </script>
 <script>
-const TOOL_VERSION = '1.2.0';   // 版號（單一來源）：修錯誤跳 patch、加功能跳 minor、破壞性改動跳 major
+const TOOL_VERSION = '1.5.5';   // 版號（單一來源）：修錯誤跳 patch、加功能跳 minor、破壞性改動跳 major
 const E = window.ziweiEngine;
 const $ = id => document.getElementById(id);
 (function(){ const s=document.getElementById('subtitle'); if(s) s.textContent += ' · v'+TOOL_VERSION; })();
@@ -1907,6 +1955,234 @@ $('lifePalace').onchange=()=>{ LIFE.palaceIdx=+$('lifePalace').value; LIFE.sel=n
 $('lifeFrame').onchange=()=>{ LIFE.frame=$('lifeFrame').value; LIFE.sel=null; renderLife(); };
 $('lifeMax').oninput=()=>{ const v=+$('lifeMax').value; if(v>=20&&v<=130){ LIFE.maxAge=v; LIFE.sel=null; renderLife(); } };
 
+/* ========== 人生節點三表（依規格 04/06/07 安全紅線）========== */
+function buildNodeTables(){
+  const c=CHART;
+  const B='子丑寅卯辰巳午未申酉戌亥', S='甲乙丙丁戊己庚辛壬癸';
+  const OPP={子:'午',丑:'未',寅:'申',卯:'酉',辰:'戌',巳:'亥',午:'子',未:'丑',申:'寅',酉:'卯',戌:'辰',亥:'巳'};
+  const TRINE=[['申','子','辰'],['寅','午','戌'],['巳','酉','丑'],['亥','卯','未']];
+  const SIHUA={甲:['廉貞','破軍','武曲','太陽'],乙:['天機','天梁','紫微','太陰'],丙:['天同','天機','文昌','廉貞'],丁:['太陰','天同','天機','巨門'],戊:['貪狼','太陰','右弼','天機'],己:['武曲','貪狼','天梁','文曲'],庚:['太陽','武曲','太陰','天同'],辛:['巨門','太陽','文曲','文昌'],壬:['天梁','紫微','左輔','武曲'],癸:['破軍','巨門','太陰','貪狼']};
+  const PAL12=['命','兄弟','夫妻','子女','財帛','疾厄','遷移','交友','官祿','田宅','福德','父母'];
+  const TUFA=['地空','地劫'], JIN=['武曲','七殺','擎羊','陀羅'], YANGTUO=['擎羊','陀羅'];
+  const SHA4=['擎羊','陀羅','火星','鈴星'], SHA6=['擎羊','陀羅','火星','鈴星','地空','地劫'];
+  const DOMAIN={命宮:'自身與整體',兄弟:'手足同儕',夫妻:'感情婚姻',子女:'子女緣分',財帛:'財務',疾厄:'健康',遷移:'外出與人際',交友:'朋友部屬',官祿:'事業工作',田宅:'家宅置產',福德:'心緒福分',父母:'長輩文書'};
+  const dom=pn=>DOMAIN[pn]||pn;
+  const birthYear=c.lunar.lYear, curAge=CUR_YEAR-birthYear+1, MIN=1, MAX=85;
+  const palAt=ch=>c.palaces[B.indexOf(ch)];
+  // 煞星亮度引擎未填，補上通行表（與匯出同一張 SHA_BRIGHT）；主星亮度引擎已算
+  const effB=(s,bIdx)=> s.brightness || (SHA_BRIGHT[s.name]?SHA_BRIGHT[s.name][bIdx]:'');
+  const starsOn=brs=>{ const o=[]; brs.forEach(b=>{const bi=B.indexOf(b),p=palAt(b); if(p)p.stars.forEach(s=>o.push({name:s.name,type:s.type,hua:s.hua,brightness:effB(s,bi)}));}); return o; };
+  const sanfang=b=>{ const set=new Set([b,OPP[b]]); TRINE.forEach(t=>{ if(t.indexOf(b)>=0) t.forEach(x=>set.add(x)); }); return [...set]; };
+  const isMW=s=>s.brightness==='廟'||s.brightness==='旺';
+  const mwMain=p=>{ if(!p)return null; const s=p.stars.find(x=>x.type==='主'&&isMW(x)); return s?s.name:null; };
+  const gz=year=>[S[((year-4)%10+10)%10], B[((year-4)%12+12)%12]];
+  const lpMapOf=fb=>{ const m={}, idx=B.indexOf(fb); for(let k=0;k<12;k++) m[B[(idx-k+12)%12]]=PAL12[k]; return m; };
+  const findBranch=name=>{ for(let z=0;z<12;z++){ if(c.palaces[z].stars.some(s=>s.name===name)) return c.palaces[z].zhi; } return null; };
+  const mingZhi=(c.palaces.find(p=>p.palaceName==='命宮')||{}).zhi, axisBenming=[mingZhi,OPP[mingZhi]]; // 本命命遷軸
+  // 流忌星性 → 本義領域（回本義、脈絡定主從；工具標候選不武斷）
+  const STARJI={武曲:'破財／債務／金屬之傷（財星忌）',廉貞:'血光／官非／情緒（囚星忌）',巨門:'口舌是非／合約糾紛',太陰:'陰財暗耗／情緒低潮',天機:'變動操心／計畫生變',文昌:'文書／合約／考核失準',文曲:'文書／合約／簽署糾紛',貪狼:'慾望失衡／應酬桃花',天梁:'孤剋／長輩／原則之爭',破軍:'破耗／變動／汰換',七殺:'決斷／手術／衝撞',天同:'福分被擾／情緒健康',太陽:'長輩／事業位／男性親人'};
+  // 流羊陀（依流年干起祿存，前一位羊、後一位陀）：供 (f) 次級引動
+  const LUCUN={甲:'寅',乙:'卯',丙:'巳',丁:'午',戊:'巳',己:'午',庚:'申',辛:'酉',壬:'亥',癸:'子'};
+  const natalYangtuo=new Set(c.palaces.filter(p=>p.stars.some(s=>s.name==='擎羊'||s.name==='陀羅')).map(p=>p.zhi)); // 本命羊陀所在宮支
+  // §8 應驗月：五虎遁起月干，逐月看 keyStar 疊忌/疊祿
+  const MONTH_FIRST={甲:2,己:2,乙:4,庚:4,丙:6,辛:6,丁:8,壬:8,戊:0,癸:0};
+  function drillMonths(year, keyStar){
+    const yStem=S[((year-4)%10+10)%10];
+    const liuJiY=SIHUA[yStem][3], liuLuY=SIHUA[yStem][0];
+    const kb=findBranch(keyStar), kNatal=kb?palAt(kb).stars.find(s=>s.name===keyStar):null;
+    const baseJi=(kNatal&&kNatal.hua==='忌'?1:0)+(liuJiY===keyStar?1:0); // 生年+流年 疊在 keyStar 的忌
+    const baseLu=(kNatal&&kNatal.hua==='祿'?1:0)+(liuLuY===keyStar?1:0);
+    const months=[];
+    for(let m=1;m<=12;m++){
+      const mGan=S[(MONTH_FIRST[yStem]+(m-1))%10], mJi=SIHUA[mGan][3], mLu=SIHUA[mGan][0];
+      months.push({m,mGan,mJi,mLu,jiStack:baseJi+(mJi===keyStar?1:0),luKey:baseLu+(mLu===keyStar?1:0),luFin:(mLu==='武曲'||mLu==='太陰')});
+    }
+    const maxJi=Math.max.apply(null,months.map(x=>x.jiStack));
+    const xiongPeaks=months.filter(x=>x.jiStack===maxJi&&maxJi>=2).map(x=>x.m);
+    const luMonths=months.filter(x=>x.luKey>=2||x.luFin).map(x=>({m:x.m,star:x.luKey>=2?keyStar:x.mLu}));
+    return {keyStar,months,xiongPeaks,maxJi,luMonths};
+  }
+
+  // 表一：大限論斷
+  const daxianTable=c.daList.map((d,i)=>{
+    const b=d.zhi, sf=sanfang(b);
+    const xiong=starsOn(sf).filter(s=> s.hua==='忌' || TUFA.indexOf(s.name)>=0 || (SHA4.indexOf(s.name)>=0 && s.brightness==='陷'));
+    const huajie=mwMain(palAt(b));
+    const next=c.daList[i+1]; let nextBad=false;
+    if(next){ const ns=starsOn([next.zhi]);
+      nextBad = ns.some(s=>s.hua==='忌') || (ns.some(s=>SHA6.indexOf(s.name)>=0&&s.brightness==='陷') && ns.some(s=>TUFA.indexOf(s.name)>=0)); }
+    const passed=d.end<curAge, after100=d.start>=93, current=curAge>=d.start&&curAge<=d.end;
+    let verdict;
+    if(xiong.length && !huajie && nextBad && !passed && !after100) verdict='WATCH';
+    else if(xiong.length && huajie) verdict='break_resolved';
+    else if(xiong.length) verdict='break_watch';
+    else verdict='ping';
+    const status=passed?'回顧':(current?'現行':'未來');
+    const D=dom(d.palaceName);
+    let text;
+    if(verdict==='ping') text=`${d.start}–${d.end} 歲這十年大致平順，以「${D}」為主軸。`;
+    else if(verdict==='break_resolved') text=`這十年以「${D}」為主軸；偶有${D}上的小波折，有廟旺${huajie}坐鎮化解，放在心上、做好準備即可。`;
+    else if(verdict==='break_watch') text=`這十年以「${D}」為主軸；${D}方面多留意些，宜穩健、提前安排，多屬可化解的功課。`;
+    else text=`${d.start}–${d.end} 歲這步在「${D}」上較需用心；建議屆時配合當年流年細看、提早做好預防與安排即可（非定數，可化解）。`;
+    return {order:i+1, ageRange:`${d.start}-${d.end}`, palaceName:d.palaceName, branch:d.zhi, mainTheme:D, verdict, status, text};
+  });
+
+  // 表二、表三：逐年掃描
+  const xiongTable=[], jiTable=[];
+  for(let age=MIN; age<=MAX; age++){
+    const year=birthYear+age-1, g=gz(year), stem=g[0], fb=g[1];
+    const axis=[fb,OPP[fb]], axStars=starsOn(axis), lpMap=lpMapOf(fb), liuJi=SIHUA[stem][3];
+    const natalAtFb=palAt(fb).palaceName, status= age<curAge?'已過':(age===curAge?'今年':'未來');
+    const resolve=mwMain(palAt(fb))||mwMain(palAt(OPP[fb]));
+
+    // 凶（流忌引動年模型）：列入閘維持廣，強/中分級為重點。一句話：武曲恆強；廉貞要沖到當年軸才強，沒沖到只算中；外傷軸被引動也強。
+    {
+      const ljb=findBranch(liuJi);
+      const onBenming = ljb && axisBenming.indexOf(ljb)>=0;   // 流忌沖本命命遷軸
+      const onFlow    = ljb && axis.indexOf(ljb)>=0;          // 流忌沖當年（流年）命遷軸
+      const isWuqu    = liuJi==='武曲', isLian = liuJi==='廉貞';
+      // ③ 流忌落本命凶結構（落宮軸上有 空劫陷 或 煞星[羊陀火鈴]落陷）
+      const ljAx = starsOn([ljb,OPP[ljb]]);
+      const ljXiong = ljAx.some(s=>(TUFA.indexOf(s.name)>=0&&s.brightness==='陷')||(SHA4.indexOf(s.name)>=0&&s.brightness==='陷'));
+      // (c) 強：當年命遷軸 空劫陷＋金性 被流忌引動（突發外傷強訊號）
+      const tufaChanFlow=axStars.some(s=>TUFA.indexOf(s.name)>=0&&s.brightness==='陷');
+      const jinFlow=axStars.some(s=>JIN.indexOf(s.name)>=0);
+      const waiShangQiang = tufaChanFlow && jinFlow && onFlow;
+      // (f) 中·次級：流羊／流陀 疊本命羊陀，且落在本命或當年命遷軸上
+      const lci=B.indexOf(LUCUN[stem]), liuYang=B[(lci+1)%12], liuTuo=B[(lci-1+12)%12];
+      const axisUnion=new Set([mingZhi,OPP[mingZhi],fb,OPP[fb]]);
+      const yangtuoDie=(natalYangtuo.has(liuYang)&&axisUnion.has(liuYang))||(natalYangtuo.has(liuTuo)&&axisUnion.has(liuTuo));
+      const listed = onBenming || onFlow || isWuqu || isLian || ljXiong || yangtuoDie;
+      if(listed){
+        const ljPalace = palAt(ljb).palaceName;
+        // 廉貞組合領域（廉破水域／廉七交通／廉貪體質心理）：同宮·對宮·引動三級；亮度化解先決；凶話轉譯（不出「水厄/水中作塚」）
+        const lianCombos=[]; let lianForceQiang=false;
+        if(isLian){
+          const lz=ljb, lzAx=[lz,OPP[lz]];
+          const lianB=(palAt(lz).stars.find(s=>s.name==='廉貞')||{}).brightness;
+          const axisAct = onFlow || (natalYangtuo.has(liuYang)&&lzAx.indexOf(liuYang)>=0) || (natalYangtuo.has(liuTuo)&&lzAx.indexOf(liuTuo)>=0);
+          [['破軍','水域安全（涉水／水上活動留意）','廉破'],['七殺','交通安全','廉七'],['貪狼','體質／幼年／心理','廉貪']].forEach(cb=>{
+            const pb=findBranch(cb[0]); if(!pb) return;
+            const same=pb===lz, opp=pb===OPP[lz]; if(!same&&!opp) return;
+            const pB=(palAt(pb).stars.find(s=>s.name===cb[0])||{}).brightness;
+            const xian=(lianB==='陷'||pB==='陷'), miaowang=!xian&&(lianB==='廟'||lianB==='旺'||pB==='廟'||pB==='旺');
+            let lvl;
+            if(same){ lvl=xian?'同宮·重斷':(miaowang?'同宮·廟旺化解·留意非重斷':'同宮·留意'); lianForceQiang=true; } // 同宮=強(規格§4 line137)；廟旺只軟化用語、仍列
+            else { if(axisAct){ lvl=miaowang?'對照·引動·廟旺化解留意':'對照·引動升級'; lianForceQiang=true; } else lvl=miaowang?'對照·廟旺化解·留意':'對照·留意（次級）'; }
+            lianCombos.push(cb[1]+'（'+cb[2]+'·'+lvl+'）');
+          });
+        }
+        // 強（對齊規格§4）：武曲恆強 / 廉貞沖命遷軸(流年或本命)才強 / 外傷軸被引動 / 廉組合同宮引動·對照升級。中性星純位置沖軸、廉貞未沖軸＝中。
+        const chongMingQian = onFlow || onBenming;   // 沖命遷＝沖流年或本命命遷軸
+        const isQiang = isWuqu || (isLian && chongMingQian) || waiShangQiang || lianForceQiang;
+        const strength = isQiang?'強':'中';
+        const trig=[];
+        if(onFlow) trig.push('流忌「'+liuJi+'」沖當年流年命遷軸'+(isLian||isWuqu?'':'（純位置→中）'));
+        else if(onBenming) trig.push('流忌「'+liuJi+'」沖本命命遷軸'+(isLian||isWuqu?'':'（純位置→中）'));
+        if(isWuqu) trig.push('武曲財星忌（恆強）');
+        if(isLian) trig.push('廉貞囚星忌'+(chongMingQian?'（沖命遷軸→強）':(lianForceQiang?'（組合升級→強）':'（未沖命遷軸→中）')));
+        if(waiShangQiang) trig.push('空劫陷＋金性同軸被引動（突發外傷強訊號）');
+        else if(ljXiong) trig.push('流忌落本命凶結構軸（空劫陷／煞陷）');
+        if(yangtuoDie) trig.push('流羊陀疊本命羊陀於軸（次級）');
+        if(!trig.length) trig.push('流忌「'+liuJi+'」引動');
+        const domain=[];
+        if(STARJI[liuJi]) domain.push(STARJI[liuJi]+'（'+liuJi+'本義）');
+        lianCombos.forEach(d=>domain.push(d));
+        domain.push('流忌落本命「'+ljPalace+'」，'+dom(ljPalace)+'方面宜留意');
+        const resolve = mwMain(palAt(mingZhi))||mwMain(palAt(OPP[mingZhi]))||mwMain(palAt(ljb));
+        const rTxt = resolve?`命／遷或落宮有廟旺${resolve}坐鎮，多為虛驚／可化解、非定數`:`無廟旺主星直接化解，更宜提早預防、把功課做在前面`;
+        const dir = isWuqu?'大額財務多核對、緩投資、留意債務與金屬之傷'
+          : isLian?'行車與作業放慢、體檢與保險先備、情緒給出口'
+          : liuJi==='七殺'?'重大決斷緩一步、若需手術多方評估'
+          : (liuJi==='巨門'||liuJi==='文昌'||liuJi==='文曲')?'合約文書逐字核、口舌避正面衝突'
+          : '放慢節奏、例行先做、重要決定多一道確認';
+        const text= status==='已過'
+          ? `回顧：${year}（${stem+fb}）流忌「${liuJi}」引動，偏向「${domain.join('、')}」。你那年是否曾遇相關事？可印證。`
+          : `${year}（虛歲${age}）流忌「${liuJi}」引動：「${domain.join('、')}」的功課候選（需脈絡）。方向：${dir}；${rTxt}。可預防、不必恐慌、亦無從精算。`;
+        xiongTable.push({age,year,ganzhi:stem+fb,palace:natalAtFb,trig,domain,resolve:resolve||null,strength,status,text,notable:strength==='強',drill:drillMonths(year,liuJi)});
+      }
+    }
+
+    // 吉
+    let score=0; const types=[];
+    axStars.forEach(s=>{ if(s.hua&&'祿權科'.indexOf(s.hua)>=0){ score+=2; types.push(s.hua+s.name); } });
+    if(axStars.some(s=>s.name==='祿存')){score+=2;types.push('祿存·財');}
+    if(axStars.some(s=>s.name==='天魁'||s.name==='天鉞')){score+=2;types.push('魁鉞·貴人');}
+    if(axStars.some(s=>s.name==='紅鸞'||s.name==='天喜')){score+=2;types.push('鸞喜·婚喜');}
+    if(axStars.some(s=>s.type==='主'&&isMW(s))) score+=1;
+    ['祿','權','科'].forEach((k,ki)=>{ const star=SIHUA[stem][ki], br=findBranch(star); if(br&&['命','財帛','官祿','夫妻'].indexOf(lpMap[br])>=0){ score+=2; types.push('流'+k+'='+star); } });
+    score -= axStars.filter(s=>s.hua==='忌'||(SHA6.indexOf(s.name)>=0&&s.brightness==='陷')).length;
+    if(score>=3){
+      const tags=[]; const t=types.join('');
+      if(/科/.test(t))tags.push('名聲／作品被看見'); if(/祿/.test(t))tags.push('財運／機會');
+      if(/權/.test(t))tags.push('掌權／升遷'); if(/魁鉞|貴人/.test(t))tags.push('貴人提攜'); if(/鸞喜|婚喜/.test(t))tags.push('感情喜慶');
+      const jiType=tags.length?tags.join('、'):'整體加分年';
+      const dir=tags.length?tags[0].replace(/／.*/,''):'主動爭取';
+      const text= status==='已過'?`回看 ${year} 是否曾有好消息（${jiType}），可印證。`:`${year}（虛歲${age}）是發光年：${jiType}。宜主動出手、在這方向上把握。`;
+      jiTable.push({age,year,ganzhi:stem+fb,palace:natalAtFb,jiType,score,direction:dir,status,text,notable:score>=9,drill:drillMonths(year,SIHUA[stem][0])});
+    }
+  }
+  return { meta:{name:$('name').value||'', birthYear, currentAge:curAge}, daxianTable, xiongTable, jiTable };
+}
+
+let NODE_TAB='daxian';
+function drillHTML(d,type){
+  if(!d) return '';
+  const cells=d.months.map(x=>{ const xp=d.xiongPeaks.indexOf(x.m)>=0, lp=d.luMonths.some(L=>L.m===x.m);
+    return `<span class="mcell${xp?' xpeak':''}${lp?' lpeak':''}">${x.m}月<b>${x.mGan}</b>${xp?'<i>忌'+x.jiStack+'</i>':(lp?'<i>祿</i>':'')}</span>`; }).join('');
+  const xp=d.xiongPeaks.length?`農曆 ${d.xiongPeaks.join('、')} 月（${d.keyStar} ${d.maxJi} 忌疊）`:'無明顯疊忌峰';
+  const lp=d.luMonths.length?d.luMonths.map(L=>`${L.m}月(${L.star}祿)`).join('、'):'—';
+  const note=type==='xiong'
+    ? `<b style="color:#c2683f">最該留意月</b>：${xp}——該月行車／作業放慢、抓緊預算、例行先做（留意，非會出事）；　<b style="color:#5f8f4e">轉機／宜出手月</b>：${lp}。`
+    : `<b style="color:#5f8f4e">最宜出手月</b>：${lp}（簽約／變現／發表）；　提醒留意月：${xp}。`;
+  return `<div class="drill-strip">${cells}</div><div class="drill-note">${note}<br><span class="node-ctx">疊回該年關鍵星「${d.keyStar}」的月（五虎遁起月干）；與該結構無關的月化忌／祿不計。</span></div>`;
+}
+function renderNodes(){
+  const D=buildNodeTables();
+  const fo=$('nodeFutureOnly').checked, nb=$('nodeNotable').checked, tab=NODE_TAB, mu='color:var(--muted)';
+  const head=arr=>'<table class="node"><thead><tr>'+arr.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+  let html='', sum='';
+  if(tab==='daxian'){
+    let rows=D.daxianTable; if(fo)rows=rows.filter(r=>r.status!=='回顧');
+    sum=`大限 ${D.daxianTable.length} 步 · 基準虛歲 ${D.meta.currentAge}`;
+    html=head(['大限','主軸','判定','狀態','說明'])+rows.map(r=>{
+      const cls=r.status==='回顧'?'past':(r.status==='現行'?'now':'');
+      const vd=r.verdict==='WATCH'?'<span class="vd watch">留心</span>':r.verdict==='break_resolved'?'<span class="vd bk">破/病·有化解</span>':r.verdict==='break_watch'?'<span class="vd bk">破/病·留意</span>':'<span class="vd ping">平</span>';
+      return `<tr class="${cls}"><td>${r.ageRange}歲<br><span style="${mu}">${r.branch}宮</span></td><td>${r.palaceName}<br><span style="${mu};font-size:0.72rem">${r.mainTheme}</span></td><td>${vd}</td><td>${r.status}</td><td>${r.text}</td></tr>`;
+    }).join('')+'</tbody></table>';
+  } else if(tab==='xiong'){
+    let rows=D.xiongTable.filter(r=>r.strength==='強'); if(fo)rows=rows.filter(r=>r.status!=='已過'); // 只顯示「強」，中級不列
+    sum=`流忌引動年（強）${rows.length}${fo?'·只看未來':''}`;
+    html= rows.length? head(['虛歲/年','流年','引動·候選領域','化解','說明'])+rows.map(r=>{
+      const cls=r.status==='已過'?'past':(r.status==='今年'?'now':'');
+      return `<tr class="${cls} clickable"><td>▸ ${r.age}<br><span style="${mu}">${r.year}</span></td><td>${r.ganzhi}<br><span style="${mu}">${r.palace}</span></td><td><span class="node-ctx">${r.trig.join('；')}</span><br>${r.domain.join('<br>')}<br><span class="node-ctx">需脈絡判定</span></td><td>${r.resolve?'<span class="resolve-yes">廟旺'+r.resolve+'</span>':'—'}</td><td>${r.text}</td></tr>`+
+        `<tr class="drill-row hidden"><td colspan="5">${drillHTML(r.drill,'xiong')}</td></tr>`;
+    }).join('')+'</tbody></table>' : `<p style="${mu};padding:12px">此範圍內未偵測到「強」等級的流忌引動年。</p>`;
+  } else {
+    let rows=D.jiTable; if(nb)rows=rows.filter(r=>r.notable); if(fo)rows=rows.filter(r=>r.status!=='已過');
+    sum=`顯示 ${rows.length} 年 / 共 ${D.jiTable.length} 加分年（${nb?'只看顯著(≥9分)':'門檻≥3'}${fo?'·只看未來':''}）`;
+    html= rows.length? head(['虛歲/年','流年','吉型','分','把握說明'])+rows.map(r=>{
+      const cls=r.status==='已過'?'past':(r.status==='今年'?'now':(r.status==='未來'?'future-ji':''));
+      return `<tr class="${cls} clickable"><td>▸ ${r.age}<br><span style="${mu}">${r.year}</span></td><td>${r.ganzhi}<br><span style="${mu}">${r.palace}</span></td><td>${r.jiType}</td><td>${r.score}</td><td>${r.text}</td></tr>`+
+        `<tr class="drill-row hidden"><td colspan="5">${drillHTML(r.drill,'ji')}</td></tr>`;
+    }).join('')+'</tbody></table>' : `<p style="${mu};padding:12px">此範圍內未達門檻的發光年。</p>`;
+  }
+  $('nodeTableWrap').innerHTML=html; $('nodeSummary').textContent=sum;
+  $('nodeNotableWrap').style.display = (tab==='ji')?'':'none'; // 顯著開關只對吉表（凶表固定只顯示「強」）
+  { const lb=document.getElementById('nodeNotableLabel'); if(lb) lb.textContent = '只看顯著(吉≥9分)'; }
+  $('nodeTableWrap').querySelectorAll('tr.clickable').forEach(tr=>tr.onclick=()=>tr.nextElementSibling.classList.toggle('hidden')); // 點列展開應驗月
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.toggle('active',b.dataset.t===tab));
+}
+function openNodes(){ if(!CHART)compute();
+  $('board').classList.add('hidden');$('notes').classList.add('hidden');$('energyView').classList.add('hidden');$('lifeView').classList.add('hidden');$('nodeView').classList.remove('hidden');
+  $('topPan').textContent='人生節點三表'; renderNodes(); }
+function closeNodes(){ $('nodeView').classList.add('hidden');$('board').classList.remove('hidden');$('notes').classList.remove('hidden'); render(); }
+$('nodeBtn').onclick=openNodes;
+$('backChart3').onclick=closeNodes;
+$('nodeFutureOnly').onchange=renderNodes;
+$('nodeNotable').onchange=renderNodes;
+document.querySelectorAll('.ntab').forEach(b=>b.onclick=()=>{ NODE_TAB=b.dataset.t; renderNodes(); });
+
 $('go').onclick=compute;
 $('saveBtn').onclick=doExport;
 $('loadBtn').onclick=()=>$('fileInput').click();
@@ -1914,7 +2190,7 @@ $('fileInput').onchange=e=>{ if(e.target.files[0]) doImport(e.target.files[0]); 
 $('prevHour').onclick=()=>{ $('h').value=(+$('h').value+11)%12; compute(); };
 $('nextHour').onclick=()=>{ $('h').value=(+$('h').value+1)%12; compute(); };
 // 基準年切換：更新虛歲/預設運限/本命匯出流年，並讓流年·小限·流日的年份跟著走
-$('refYear').oninput=()=>{ const v=+$('refYear').value; if(v>=1900&&v<=2200){ CUR_YEAR=v; $('flYear').value=v; $('xiaoYear').value=v; compute(); } };
+$('refYear').oninput=()=>{ const v=+$('refYear').value; if(v>=1900&&v<=2200){ CUR_YEAR=v; $('flYear').value=v; $('xiaoYear').value=v; compute(); if(!$('nodeView').classList.contains('hidden')) renderNodes(); } };
 ['panType','daPick','xiaoYear','flYear','flMonth','flDay','flHour'].forEach(id=>{
   const el=$(id); el.addEventListener(el.tagName==='SELECT'?'change':'input', render);
 });
