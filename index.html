@@ -43,6 +43,7 @@ h1{font-family:var(--font-serif);font-size:1.7rem;font-weight:600;text-align:cen
 .topbar .ctrl select:focus,.topbar .ctrl input:focus{outline:none;border-color:var(--gold);}
 .muted-inline{color:var(--gold);font-size:0.78rem;}
 .topbar .vr{width:1px;align-self:stretch;background:var(--rule);margin:0 2px;}
+.topbar-break{flex-basis:100%;height:0;margin:0;}
 
 /* 輸入卡 */
 .input-card{background:var(--bg-card);border:1px solid var(--rule);border-radius:10px;
@@ -185,6 +186,9 @@ button{font-family:var(--font-serif);font-size:0.9rem;letter-spacing:0.06em;padd
 .energy-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:0.76rem;color:var(--muted);margin:8px 2px 0;}
 .energy-legend i{display:inline-block;border-radius:50%;margin-right:4px;vertical-align:middle;}
 .energy-detail{margin-top:12px;border:1px solid var(--rule);border-radius:8px;padding:12px 14px;background:#fffdf8;min-height:60px;}
+.daen-dot{cursor:pointer;}
+.daen-dot:hover{stroke:var(--strong)!important;stroke-width:2!important;}
+.daen-word{font-size:11px;font-weight:600;font-family:var(--font-serif);}
 .ed-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--font-serif);color:var(--strong);}
 .ed-badge{font-size:0.74rem;font-weight:700;color:#fff;padding:1px 8px;border-radius:10px;}
 .ed-badge.aus{background:#5f8f4e;} .ed-badge.cau{background:#c2683f;} .ed-badge.mix{background:#b5803a;} .ed-badge.nor{background:#9c8f7d;}
@@ -311,7 +315,9 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
   <span class="vr"></span>
   <button class="btn-ghost" id="prevHour">‹ 上一個時辰</button>
   <button class="btn-ghost" id="nextHour">下一個時辰 ›</button>
+  <div class="topbar-break"></div>
   <button class="btn-ghost" id="energyBtn">📈 本月能量</button>
+  <button class="btn-ghost" id="daenBtn">🗺️ 大限能量</button>
   <button class="btn-ghost" id="lifeBtn">📉 一生流年能量</button>
   <button class="btn-ghost" id="nodeBtn">🗓️ 人生三表</button>
 </div>
@@ -389,6 +395,17 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
   <div id="lifeChart" class="energy-chart"></div>
   <div id="lifeDetail" class="energy-detail"></div>
   <div class="energy-foot">人生視角：X 軸逐年（虛歲），年層級四化鏈＝生年＋大限＋小限＋流年（4 層等權，不含流月/日/時）。框架預設取「<b>該年流年的所鎖宮位</b>」三方四正（可切「本命宮」固定框架）。淡豎線＝大限交界、梯田底色＝各限分段，標宮干與年齡區間。Y 軸＝能量與功課的水位，低谷為「功課期：宜深耕勿強求」。能量分只畫高度，不推翻吉年/功課年的質性判定。<br>計分（固定）：每顆星 祿+10、權+10、科+10、忌−15；<b>祿權科齊→整顆星分數×2</b>；功課年＝框架疊忌數≥3。</div>
+</div>
+
+<!-- 人生大限能量圖（十二大限好壞地圖·橫向）-->
+<div id="daenView" class="energy hidden">
+  <div class="energy-bar">
+    <button class="btn-ghost" id="backChart4">‹ 返回命盤</button>
+    <span class="muted-inline" id="daenSummary"></span>
+  </div>
+  <div id="daenChart" class="energy-chart"></div>
+  <div id="daenDetail" class="energy-detail"></div>
+  <div class="energy-foot">十二大限好壞地圖（橫向）：X 軸＝十二大限由左到右（3-12→113-122，標年齡區間＋宮名），Y 軸＝能量高低（下「守·低」、上「強·峰」），十二點連成折線。每限取「<b>該大限命宮三方四正</b>」框架，疊「<b>生年＋大限四化</b>」兩層計分（與一生視圖同一套疊加引擎、同參數）。分數定高低、質性定色與等級：<b style="color:#3f7d36">峰/強</b>＝綠（峰最大深綠）、<b style="color:#cf9233">轉折</b>＝琥珀、<b style="color:#b9ad96">守</b>＝灰、<b style="color:#c0392b">谷</b>＝紅最大顆。「今」＝當前大限、「身」＝身宮大限。低谷走轉譯（谷＝功課/沉潛蓄力，非凶）。<br>計分（固定）：每顆星 祿+10、權+10、科+10、忌−15；祿權科齊→×2。流派/亮度採通行版，待核對。</div>
 </div>
 
 <!-- 人生節點三表 -->
@@ -1261,14 +1278,17 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
 
 </script>
 <script>
-const TOOL_VERSION = '1.5.5';   // 版號（單一來源）：修錯誤跳 patch、加功能跳 minor、破壞性改動跳 major
+const TOOL_VERSION = '1.6.2';   // 版號（單一來源）：修錯誤跳 patch、加功能跳 minor、破壞性改動跳 major
 const E = window.ziweiEngine;
 const $ = id => document.getElementById(id);
 (function(){ const s=document.getElementById('subtitle'); if(s) s.textContent += ' · v'+TOOL_VERSION; })();
-// 引擎未載入時給明確提示（避免靜默失敗）；出生時辰/流時選項已改為靜態 HTML，不再靠 JS 填充
-if(!E || typeof E.computeChart!=='function'){
+// 引擎未載入時給明確提示（避免靜默失敗 + 避免 compute 反覆跳錯誤視窗）
+const ENGINE_OK = !!(E && typeof E.computeChart==='function');
+if(!ENGINE_OK){
   document.body.insertAdjacentHTML('afterbegin',
-    '<div style="background:#c2683f;color:#fff;padding:12px 16px;font-family:sans-serif;font-size:14px;text-align:center">紫微引擎未載入完成，請確認此檔案完整（單檔版需含內嵌引擎）。</div>');
+    '<div style="background:#c2683f;color:#fff;padding:14px 16px;font-family:sans-serif;font-size:14px;line-height:1.6;text-align:center">'+
+    '⚠️ 紫微引擎未載入。<b>你開的可能是開發檔 <code>ziwei.html</code></b>，它需要同資料夾的 <code>ziwei-engine.js</code>／<code>solar-lunar.js</code>，雙擊（file://）時瀏覽器常不載入外部檔。<br>'+
+    '👉 請改開 <b><code>ziwei-standalone.html</code></b>（單檔自含版，引擎已內嵌，雙擊即可用）。</div>');
 }
 
 // 地支 → 盤面 grid 位置 (row,col) 1-indexed
@@ -1491,6 +1511,7 @@ function render(){
 }
 
 function compute(){
+  if(!ENGINE_OK) return; // 引擎未載入：頂端已顯示紅色提示，靜默返回、不反覆跳錯誤視窗
   const o={
     solarYear:+$('y').value, solarMonth:+$('m').value, solarDay:+$('d').value,
     hourBranch:+$('h').value, gender:$('gender').value, leapRule:$('leap').value
@@ -1854,7 +1875,7 @@ function openEnergy(){
   if(ENERGY.year==null){ const t=E.solarToLunar(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate()); ENERGY.year=t.lYear; ENERGY.month=t.lMonth; ENERGY.leap=t.isLeap; }
   $('enYear').value=ENERGY.year; $('enMonth').value=ENERGY.month;
   syncLeapWrap(); $('enLeap').checked=ENERGY.leap;
-  $('board').classList.add('hidden'); $('notes').classList.add('hidden'); $('energyView').classList.remove('hidden');
+  $('board').classList.add('hidden'); $('notes').classList.add('hidden'); $('lifeView').classList.add('hidden'); $('nodeView').classList.add('hidden'); $('daenView').classList.add('hidden'); $('energyView').classList.remove('hidden');
   $('topPan').textContent='本月能量';
   ENERGY.sel=null; renderEnergy(); syncAllCustom();
 }
@@ -1943,7 +1964,7 @@ function openLife(){
   if(!CHART) compute();
   const ps=$('lifePalace'); if(!ps.options.length){ E.PALACE_NAMES.forEach((nm,i)=>{const o=document.createElement('option');o.value=i;o.textContent=nm;ps.appendChild(o);}); }
   $('lifePalace').value=LIFE.palaceIdx; $('lifeMax').value=LIFE.maxAge; $('lifeFrame').value=LIFE.frame;
-  $('board').classList.add('hidden'); $('notes').classList.add('hidden'); $('energyView').classList.add('hidden'); $('lifeView').classList.remove('hidden');
+  $('board').classList.add('hidden'); $('notes').classList.add('hidden'); $('energyView').classList.add('hidden'); $('nodeView').classList.add('hidden'); $('daenView').classList.add('hidden'); $('lifeView').classList.remove('hidden');
   $('topPan').textContent='一生流年能量';
   LIFE.sel=null; renderLife(); syncAllCustom();
 }
@@ -1954,6 +1975,78 @@ $('backChart2').onclick=closeLife;
 $('lifePalace').onchange=()=>{ LIFE.palaceIdx=+$('lifePalace').value; LIFE.sel=null; renderLife(); };
 $('lifeFrame').onchange=()=>{ LIFE.frame=$('lifeFrame').value; LIFE.sel=null; renderLife(); };
 $('lifeMax').oninput=()=>{ const v=+$('lifeMax').value; if(v>=20&&v<=130){ LIFE.maxAge=v; LIFE.sel=null; renderLife(); } };
+
+/* ========== 人生大限能量圖（十二大限好壞地圖·橫向）========== */
+const DAEN={ sel:null };
+// 每限：該大限命宮三方四正框架，疊「生年＋大限四化」兩層（同 stackCount 引擎、同 ENERGY 參數）
+function daenData(){
+  const shenIdx=CHART.palaces.findIndex(p=>p.isShen);
+  const curAge=CUR_YEAR-CHART.lunarBirthYear+1;
+  return CHART.daList.map((d,i)=>{
+    const base=d.zhiIndex;
+    const r=stackCount([base,(base+6)%12,(base+4)%12,(base+8)%12], [CHART.huaMap, d.hua]);
+    return Object.assign({i, d, ageRange:`${d.start}-${d.end}`, palaceName:d.palaceName, ganZhi:d.ganZhi,
+      gan:d.gan, huaText:d.huaText, isCur:curAge>=d.start&&curAge<=d.end, isShen:d.zhiIndex===shenIdx}, r);
+  });
+}
+// 質性分類（師承精神·質性優先）：峰/強綠、轉折琥珀、守灰、谷紅（峰谷最大顆）
+function daenClass(row,peak,valley){
+  const s=row.score, ji=row.jiTotal, tri=row.label==='auspicious';
+  if(s===peak && (tri||s>0)) return {key:'peak',word:'峰',color:'#3f7d36',r:8};
+  if(s===valley && (ji>=ENERGY.JI_THRESHOLD||s<0)) return {key:'valley',word:'谷',color:'#c0392b',r:8};
+  if(tri||s>=8) return {key:'strong',word:'強',color:'#5f8f4e',r:5.6};
+  if(ji>=ENERGY.JI_THRESHOLD||s<=-8) return {key:'guard',word:'守',color:'#b9ad96',r:4.6};
+  return {key:'turn',word:'轉折',color:'#cf9233',r:5.2};
+}
+const DAEN_ADVICE={
+  peak:'大運高峰，順勢佈局、開展可成，宜趁勢辦大事、把格局打開。',
+  strong:'能量偏強，主動進取、累積戰果，這十年值得用力。',
+  turn:'轉折期，方向在調整；邊走邊修、先理順再動，不貪快。',
+  guard:'守成期，宜深耕內功、低調穩走，守得住就是進，不強求擴張。',
+  valley:'功課期，最宜守與練——深耕、養生、把根紮穩，大事緩行（非凶，是沉潛蓄力，過了就轉）。'};
+function renderDaen(){
+  const rows=daenData(), n=rows.length;
+  const scores=rows.map(r=>r.score), peak=Math.max(...scores), valley=Math.min(...scores);
+  rows.forEach(r=>r.cls=daenClass(r,peak,valley));
+  const cur=rows.find(r=>r.isCur), shen=rows.find(r=>r.isShen);
+  $('daenSummary').innerHTML=`十二大限好壞地圖（橫向）　·　當前大限 <b>${cur?cur.ageRange+'歲 '+cur.palaceName:'—'}</b>（今）　·　身宮大限 <b>${shen?shen.ageRange+'歲 '+shen.palaceName:'—'}</b>（身）`;
+  const maxAbs=Math.max(10,...scores.map(s=>Math.abs(s)));
+  const padL=42,padR=22,padT=36,padB=54, stepX=Math.max(54,Math.min(100,(940-padL-padR)/(n-1)));
+  const plotW=stepX*(n-1), W=padL+padR+plotW, H=340, plotH=H-padT-padB, midY=padT+plotH/2;
+  const X=i=>padL+i*stepX, Y=sc=>midY-(sc/maxAbs)*(plotH/2);
+  let g='';
+  [maxAbs,0,-maxAbs].forEach(v=>{const yy=Y(v);g+=`<line x1="${padL}" y1="${yy}" x2="${padL+plotW}" y2="${yy}" stroke="${v===0?'#c9bd9f':'#e7ddc6'}" stroke-width="${v===0?1.2:0.8}" ${v===0?'':'stroke-dasharray="3 3"'}/>`;});
+  g+=`<text class="en-ylab" x="4" y="${Y(maxAbs)+10}">強·峰</text><text class="en-ylab" x="4" y="${Y(-maxAbs)-3}">守·低</text>`;
+  g+=`<polyline fill="none" stroke="#9c8f7d" stroke-width="1.6" points="${rows.map((r,i)=>`${X(i)},${Y(r.score)}`).join(' ')}"/>`;
+  rows.forEach((r,i)=>{ const x=X(i),y=Y(r.score), mark=(r.isCur?'·今':'')+(r.isShen?'·身':'');
+    g+=`<circle class="daen-dot" data-i="${i}" cx="${x}" cy="${y}" r="${r.cls.r}" fill="${r.cls.color}" stroke="#fffdf8" stroke-width="1.2"/>`;
+    g+=`<text class="daen-word" x="${x}" y="${y-r.cls.r-5}" text-anchor="middle" fill="${r.cls.color}">${r.cls.word}${mark}</text>`;
+    g+=`<text class="en-xlab" x="${x}" y="${H-padB+16}" text-anchor="middle">${r.ageRange}</text>`;
+    g+=`<text class="en-xlab" x="${x}" y="${H-padB+29}" text-anchor="middle">${r.palaceName}</text>`;
+  });
+  $('daenChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}</svg>`+
+    `<div class="energy-legend" style="padding:0 4px"><span><i style="width:14px;height:14px;background:#3f7d36"></i>峰(最高)</span><span><i style="width:11px;height:11px;background:#5f8f4e"></i>強</span><span><i style="width:11px;height:11px;background:#cf9233"></i>轉折</span><span><i style="width:9px;height:9px;background:#b9ad96"></i>守</span><span><i style="width:14px;height:14px;background:#c0392b"></i>谷(最凶·守宜深耕)</span><span style="color:#a08a5a">今＝當前大限·身＝身宮大限</span></div>`;
+  $('daenChart').querySelectorAll('.daen-dot').forEach(c=>c.onclick=()=>showDaen(rows,+c.dataset.i));
+  let pick=DAEN.sel; if(pick==null){ pick=rows.findIndex(r=>r.isCur); if(pick<0)pick=0; }
+  showDaen(rows,Math.min(pick,n-1));
+}
+function showDaen(rows,i){
+  DAEN.sel=i; const r=rows[i];
+  const trg=r.triggers.length? r.triggers.map(t=>`<span class="t"><b>${t.name}</b>(${t.natal})${t.lu?`<span class="lu"> 祿${t.lu}</span>`:''}${t.quan?`<span class="quan"> 權${t.quan}</span>`:''}${t.ke?`<span class="ke"> 科${t.ke}</span>`:''}${t.ji?`<span class="ji"> 忌${t.ji}</span>`:''}</span>`).join('') : '<span style="color:var(--muted);font-size:0.8rem">框架內無顯著引動的星</span>';
+  const badgeCls=r.cls.key==='valley'?'cau':(r.cls.key==='peak'||r.cls.key==='strong')?'aus':(r.cls.key==='turn'?'mix':'nor');
+  $('daenDetail').innerHTML=
+    `<div class="ed-head"><span>${r.ageRange} 歲　${r.palaceName}（${r.ganZhi}）${r.isCur?'　·今':''}${r.isShen?'　·身':''}</span>`+
+    `<span style="color:var(--muted);font-size:0.82rem">大限宮干 ${r.gan}　·　大限四化：${r.huaText}</span>`+
+    `<span class="ed-badge ${badgeCls}">${r.cls.word}</span><span class="ed-score">能量分 ${r.score}</span></div>`+
+    `<div class="ed-note">${DAEN_ADVICE[r.cls.key]}</div><div class="ed-trig">${trg}</div>`;
+  $('daenChart').querySelectorAll('.daen-dot').forEach(c=>{ const on=+c.dataset.i===i; c.setAttribute('stroke', on?'#1a1411':'#fffdf8'); c.setAttribute('stroke-width', on?'2':'1.2'); });
+}
+function openDaen(){ if(!CHART)compute();
+  $('board').classList.add('hidden');$('notes').classList.add('hidden');$('energyView').classList.add('hidden');$('lifeView').classList.add('hidden');$('nodeView').classList.add('hidden');$('daenView').classList.remove('hidden');
+  $('topPan').textContent='人生大限能量圖'; DAEN.sel=null; renderDaen(); }
+function closeDaen(){ $('daenView').classList.add('hidden');$('board').classList.remove('hidden');$('notes').classList.remove('hidden'); render(); }
+$('daenBtn').onclick=openDaen;
+$('backChart4').onclick=closeDaen;
 
 /* ========== 人生節點三表（依規格 04/06/07 安全紅線）========== */
 function buildNodeTables(){
@@ -2174,7 +2267,7 @@ function renderNodes(){
   document.querySelectorAll('.ntab').forEach(b=>b.classList.toggle('active',b.dataset.t===tab));
 }
 function openNodes(){ if(!CHART)compute();
-  $('board').classList.add('hidden');$('notes').classList.add('hidden');$('energyView').classList.add('hidden');$('lifeView').classList.add('hidden');$('nodeView').classList.remove('hidden');
+  $('board').classList.add('hidden');$('notes').classList.add('hidden');$('energyView').classList.add('hidden');$('lifeView').classList.add('hidden');$('daenView').classList.add('hidden');$('nodeView').classList.remove('hidden');
   $('topPan').textContent='人生節點三表'; renderNodes(); }
 function closeNodes(){ $('nodeView').classList.add('hidden');$('board').classList.remove('hidden');$('notes').classList.remove('hidden'); render(); }
 $('nodeBtn').onclick=openNodes;
