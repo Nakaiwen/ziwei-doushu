@@ -279,7 +279,7 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
 <div class="subtitle" id="subtitle">小六太乙 · 紫微排盤工具</div>
 
 <div class="topbar">
-  <span class="now">基準年 <input id="refYear" type="number" min="1900" max="2200" style="width:66px"> <b id="refGZ"></b></span>
+  <span class="now">基準年 <input id="refYear" type="number" min="1900" max="2100" style="width:66px"> <b id="refGZ"></b></span>
   <span class="pan" id="topPan">本命盤</span>
   <span class="vr"></span>
   <label class="ctrl">盤別
@@ -297,11 +297,11 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
     <select id="daPick"></select>
   </label>
   <label class="ctrl" id="xiaoWrap" style="display:none">小限·西元年
-    <input id="xiaoYear" type="number" min="1900" max="2200">
+    <input id="xiaoYear" type="number" min="1900" max="2100">
     <span class="muted-inline" id="xiaoAge"></span>
   </label>
   <span class="ctrl" id="flWrap" style="display:none">
-    <span id="flYearW">流年<input id="flYear" type="number" min="1900" max="2200"></span>
+    <span id="flYearW">流年<input id="flYear" type="number" min="1900" max="2100"></span>
     <span id="flMonthW">國曆月<input id="flMonth" type="number" min="1" max="12"></span>
     <span id="flDayW">日<input id="flDay" type="number" min="1" max="31"></span>
     <span id="flHourW">時<select id="flHour">
@@ -361,7 +361,7 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
     <button class="btn-ghost" id="saveBtn">存檔 JSON</button>
     <button class="btn-ghost" id="loadBtn">讀檔 JSON</button>
     <input type="file" id="fileInput" accept="application/json,.json" style="display:none">
-    <span style="font-size:0.74rem;color:var(--muted)">存檔輸出 xiaoliu.ziwei-chart/v1，可供解盤工具讀取。</span>
+    <span style="font-size:0.74rem;color:var(--muted)">存檔輸出 xiaoliu.ziwei-chart/v2，可供解盤工具讀取（讀檔相容 v1）。</span>
   </div>
 </div>
 
@@ -1027,7 +1027,7 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
     貪狼: ['旺', '廟', '平', '利', '廟', '陷', '旺', '廟', '平', '利', '廟', '陷'],
     巨門: ['旺', '陷', '廟', '廟', '平', '旺', '旺', '陷', '廟', '廟', '平', '旺'],
     天相: ['廟', '廟', '廟', '陷', '得', '得', '廟', '廟', '廟', '陷', '得', '得'],
-    天梁: ['廟', '旺', '廟', '廟', '旺', '陷', '廟', '旺', '陷', '地', '旺', '陷'],
+    天梁: ['廟', '旺', '廟', '廟', '旺', '陷', '廟', '旺', '陷', '得', '旺', '陷'],
     七殺: ['旺', '廟', '廟', '陷', '廟', '平', '旺', '廟', '廟', '陷', '廟', '平'],
     破軍: ['廟', '旺', '得', '陷', '旺', '平', '廟', '旺', '得', '陷', '旺', '平']
   };
@@ -1278,7 +1278,7 @@ table.node tr.drill-row td{background:#fbf6ea;padding:9px 12px;}
 
 </script>
 <script>
-const TOOL_VERSION = '1.6.2';   // 版號（單一來源）：修錯誤跳 patch、加功能跳 minor、破壞性改動跳 major
+const TOOL_VERSION = '1.6.3';   // 版號（單一來源）：修錯誤跳 patch、加功能跳 minor、破壞性改動跳 major
 const E = window.ziweiEngine;
 const $ = id => document.getElementById(id);
 (function(){ const s=document.getElementById('subtitle'); if(s) s.textContent += ' · v'+TOOL_VERSION; })();
@@ -2283,7 +2283,7 @@ $('fileInput').onchange=e=>{ if(e.target.files[0]) doImport(e.target.files[0]); 
 $('prevHour').onclick=()=>{ $('h').value=(+$('h').value+11)%12; compute(); };
 $('nextHour').onclick=()=>{ $('h').value=(+$('h').value+1)%12; compute(); };
 // 基準年切換：更新虛歲/預設運限/本命匯出流年，並讓流年·小限·流日的年份跟著走
-$('refYear').oninput=()=>{ const v=+$('refYear').value; if(v>=1900&&v<=2200){ CUR_YEAR=v; $('flYear').value=v; $('xiaoYear').value=v; compute(); if(!$('nodeView').classList.contains('hidden')) renderNodes(); } };
+$('refYear').oninput=()=>{ const v=+$('refYear').value; if(v>=1900&&v<=2100){ CUR_YEAR=v; $('flYear').value=v; $('xiaoYear').value=v; compute(); if(!$('nodeView').classList.contains('hidden')) renderNodes(); } };
 ['panType','daPick','xiaoYear','flYear','flMonth','flDay','flHour'].forEach(id=>{
   const el=$(id); el.addEventListener(el.tagName==='SELECT'?'change':'input', render);
 });
