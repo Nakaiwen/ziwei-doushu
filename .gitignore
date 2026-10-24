@@ -1,0 +1,12 @@
+# macOS 系統檔
+.DS_Store
+._*
+
+# Windows 系統檔
+Thumbs.db
+desktop.ini
+
+# 編輯器與套件暫存
+.vscode/
+.idea/
+node_modules/
